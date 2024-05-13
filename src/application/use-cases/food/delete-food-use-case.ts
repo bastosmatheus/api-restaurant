@@ -1,14 +1,18 @@
+import { Food } from "../../../core/entities/food";
 import { FoodRepository } from "../../../adapters/repositories/food-repository";
-import { DeleteFoodUseCase, FoodPropsWithId } from "../../../interfaces/use-cases/food-use-case";
 
-class DeleteFoodUseCaseImpl implements DeleteFoodUseCase {
+type DeleteFoodUseCaseRequest = {
+  id: number;
+};
+
+class DeleteFoodUseCase {
   constructor(private foodRepository: FoodRepository) {}
 
-  public async execute(id: number): Promise<FoodPropsWithId> {
-    const food = await this.foodRepository.findFoodById(id);
+  public async execute(foodRequest: DeleteFoodUseCaseRequest): Promise<Food> {
+    const food = await this.foodRepository.delete(foodRequest.id);
 
     return food;
   }
 }
 
-export { DeleteFoodUseCaseImpl };
+export { DeleteFoodUseCase };

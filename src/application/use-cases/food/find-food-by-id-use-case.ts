@@ -1,14 +1,18 @@
+import { Food } from "../../../core/entities/food";
 import { FoodRepository } from "../../../adapters/repositories/food-repository";
-import { FindFoodByIdUseCase } from "../../../interfaces/use-cases/food-use-case";
 
-class FindFoodByIdImpl implements FindFoodByIdUseCase {
+type FindFoodByIdUseCaseRequest = {
+  id: number;
+};
+
+class FindFoodByIdUseCase {
   constructor(private foodRepository: FoodRepository) {}
 
-  public async execute(id: number) {
-    const food = this.foodRepository.findFoodById(id);
+  public async execute(foodRequest: FindFoodByIdUseCaseRequest): Promise<Food> {
+    const food = this.foodRepository.findFoodById(foodRequest.id);
 
     return food;
   }
 }
 
-export { FindFoodByIdImpl };
+export { FindFoodByIdUseCase };

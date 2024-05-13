@@ -1,14 +1,14 @@
+import { Food } from "../../../core/entities/food";
 import { FoodRepository } from "../../../adapters/repositories/food-repository";
-import { FindAllFoodsUseCase, FoodProps } from "../../../interfaces/use-cases/food-use-case";
 
-class FindAllFoodsUseCaseImpl implements FindAllFoodsUseCase {
+class FindAllFoodsUseCase {
   constructor(private foodRepository: FoodRepository) {}
 
-  public async execute(): Promise<FoodProps[]> {
-    const food = await this.foodRepository.findAll();
+  public async execute(): Promise<Food[]> {
+    const foods = await this.foodRepository.findAll();
 
-    return food;
+    return foods;
   }
 }
 
-export { FindAllFoodsUseCaseImpl };
+export { FindAllFoodsUseCase };

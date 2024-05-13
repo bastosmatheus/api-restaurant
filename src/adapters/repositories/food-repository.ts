@@ -1,11 +1,15 @@
-import { FoodProps, FoodPropsWithId } from "../../interfaces/use-cases/food-use-case";
+import { Food } from "../../core/entities/food";
+
+type FoodWithId = {
+  id: number;
+} & Food;
 
 interface FoodRepository {
-  findAll(): Promise<FoodProps[]>;
-  findFoodById(id: number): Promise<FoodPropsWithId>;
-  create(props: FoodProps): Promise<FoodProps>;
-  update(props: FoodPropsWithId): Promise<FoodPropsWithId>;
-  delete(id: number): Promise<FoodPropsWithId>;
+  findAll(): Promise<Food[]>;
+  findFoodById(id: number): Promise<FoodWithId>;
+  create(food: Food): Promise<FoodWithId>;
+  update(food: FoodWithId): Promise<FoodWithId>;
+  delete(id: number): Promise<FoodWithId>;
 }
 
 export { FoodRepository };

@@ -1,5 +1,8 @@
+import { randomUUID } from "crypto";
+
 class Employee {
   private constructor(
+    public id: string,
     public name: string,
     public email: string,
     public password: string,
@@ -7,7 +10,9 @@ class Employee {
   ) {}
 
   static create(name: string, email: string, password: string, employee_function?: string) {
-    const employee = new Employee(name, email, password, employee_function || "employee");
+    const id = randomUUID();
+
+    const employee = new Employee(id, name, email, password, employee_function ?? "employee");
 
     return employee;
   }

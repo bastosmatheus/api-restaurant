@@ -1,8 +1,15 @@
+import { randomUUID } from "crypto";
+
 class Pix {
-  private constructor(public code_generated: string) {}
+  private constructor(
+    public id: string,
+    public code_generated: string
+  ) {}
 
   static create(code_generated: string) {
-    const pix = new Pix(code_generated);
+    const id = randomUUID();
+
+    const pix = new Pix(id, code_generated);
 
     return pix;
   }

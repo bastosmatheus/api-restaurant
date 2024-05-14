@@ -1,15 +1,19 @@
 import { Food } from "../../core/entities/food";
 
-type FoodWithId = {
-  id: number;
-} & Food;
+enum EFoodResponse {
+  FoodNotFound,
+  FoodNameAlreadyExits,
+}
 
 interface FoodRepository {
   findAll(): Promise<Food[]>;
-  findFoodById(id: number): Promise<FoodWithId>;
-  create(food: Food): Promise<FoodWithId>;
-  update(food: FoodWithId): Promise<FoodWithId>;
-  delete(id: number): Promise<FoodWithId>;
+  findFoodById(id: number): Promise<Food | EFoodResponse.FoodNotFound>;
+  findFoodByName(foodName: string): Promise<Food | EFoodResponse.FoodNotFound>;
+  create(foodRequest: Food): Promise<Food | EFoodResponse.FoodNameAlreadyExits>;
+  update(
+    foodRequest: Food
+  ): Promise<Food | EFoodResponse.FoodNotFound | EFoodResponse.FoodNameAlreadyExits>;
+  delete(id: number): Promise<Food | EFoodResponse.FoodNotFound>;
 }
 
-export { FoodRepository };
+export { FoodRepository, EFoodResponse };

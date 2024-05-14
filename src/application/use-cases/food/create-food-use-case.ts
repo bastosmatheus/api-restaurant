@@ -1,8 +1,10 @@
 import { Food } from "../../../core/entities/food";
-import { FoodRepository } from "../../../adapters/repositories/food-repository";
+import { EFoodResponse, FoodRepository } from "../../../adapters/repositories/food-repository";
+import { Either, failure, success } from "../../../utils/either";
+import { ConflictError } from "../errors/conflict-error";
 
 type CreateFoodUseCaseRequest = {
-  name: string;
+  foodName: string;
   price: number;
   description: string;
   category: string;
@@ -12,9 +14,11 @@ type CreateFoodUseCaseRequest = {
 class CreateFoodUseCase {
   constructor(private foodRepository: FoodRepository) {}
 
-  public async execute(foodRequest: CreateFoodUseCaseRequest): Promise<Food> {
+  public async execute(
+    foodRequest: CreateFoodUseCaseRequest
+  ): Promise<Either<ConflictError, Food>> {
     const foodCreated = Food.create(
-      foodRequest.name,
+      foodRequest.foodName,
       foodRequest.price,
       foodRequest.description,
       foodRequest.category,
@@ -23,7 +27,11 @@ class CreateFoodUseCase {
 
     const food = await this.foodRepository.create(foodCreated);
 
-    return food;
+    if (food === EFoodResponse.FoodNameAlreadyExits) {
+      return failure(new ConflictError("Essa comida já existe"));
+    }
+
+    return success(food);
   }
 }
 

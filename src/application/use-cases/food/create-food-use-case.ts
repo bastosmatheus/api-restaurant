@@ -1,10 +1,10 @@
 import { Food } from "../../../core/entities/food";
-import { EFoodResponse, FoodRepository } from "../../../adapters/repositories/food-repository";
-import { Either, failure, success } from "../../../utils/either";
 import { ConflictError } from "../errors/conflict-error";
+import { Either, failure, success } from "../../../utils/either";
+import { FoodRepository } from "../../../adapters/repositories/food-repository";
 
 type CreateFoodUseCaseRequest = {
-  foodName: string;
+  food_name: string;
   price: number;
   description: string;
   category: string;
@@ -14,22 +14,31 @@ type CreateFoodUseCaseRequest = {
 class CreateFoodUseCase {
   constructor(private foodRepository: FoodRepository) {}
 
-  public async execute(
-    foodRequest: CreateFoodUseCaseRequest
-  ): Promise<Either<ConflictError, Food>> {
-    const foodCreated = Food.create(
-      foodRequest.foodName,
-      foodRequest.price,
-      foodRequest.description,
-      foodRequest.category,
-      foodRequest.image
-    );
+  public async execute({
+    food_name,
+    price,
+    description,
+    category,
+    image,
+  }: CreateFoodUseCaseRequest): Promise<Either<ConflictError, Food>> {
+    const foodNameAlreadyExists = await this.foodRepository.findFoodByName(food_name);
 
-    const food = await this.foodRepository.create(foodCreated);
-
-    if (food === EFoodResponse.FoodNameAlreadyExits) {
+    if (foodNameAlreadyExists) {
       return failure(new ConflictError("Essa comida já existe"));
     }
+
+    const foodCreated = Food.create(food_name, price, description, category, image);
+
+    const id = foodCreated.id;
+
+    const food = await this.foodRepository.create({
+      id,
+      food_name,
+      price,
+      description,
+      category,
+      image,
+    });
 
     return success(food);
   }

@@ -1,17 +1,23 @@
 import { Food } from "../../../core/entities/food";
 import { FoodRepository } from "../../../adapters/repositories/food-repository";
+import { NotFoundError } from "../errors/not-found-error";
+import { Either, failure, success } from "../../../utils/either";
 
 type FindFoodByIdUseCaseRequest = {
-  id: number;
+  id: string;
 };
 
 class FindFoodByIdUseCase {
   constructor(private foodRepository: FoodRepository) {}
 
-  public async execute(foodRequest: FindFoodByIdUseCaseRequest): Promise<Food> {
-    const food = this.foodRepository.findFoodById(foodRequest.id);
+  public async execute({ id }: FindFoodByIdUseCaseRequest): Promise<Either<NotFoundError, Food>> {
+    const food = await this.foodRepository.findFoodById(id);
 
-    return food;
+    if (!food) {
+      return failure(new NotFoundError(`Comida não encontrada com o ID: ${id}`));
+    }
+
+    return success(food);
   }
 }
 

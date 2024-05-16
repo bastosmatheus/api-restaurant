@@ -1,9 +1,11 @@
 import { Food } from "../../../core/entities/food";
 import { FoodRepository } from "../../../adapters/repositories/food-repository";
+import { Either, failure, success } from "../../../utils/either";
+import { NotFoundError } from "../errors/not-found-error";
 
 type UpdateFoodUseCaseRequest = {
   id: string;
-  foodName: string;
+  food_name: string;
   price: number;
   description: string;
   category: string;
@@ -15,28 +17,28 @@ class UpdateFoodUseCase {
 
   public async execute({
     id,
-    foodName,
+    food_name,
     price,
     description,
     category,
     image,
-  }: UpdateFoodUseCaseRequest): Promise<Food | false> {
+  }: UpdateFoodUseCaseRequest): Promise<Either<NotFoundError, Food>> {
     const foodExists = await this.foodRepository.findFoodById(id);
 
     if (!foodExists) {
-      return false;
+      return failure(new NotFoundError(`Comida não encontrada com o ID: ${id}`));
     }
 
     const food = await this.foodRepository.update({
       id,
-      foodName,
+      food_name,
       price,
       description,
       category,
       image,
     });
 
-    return food;
+    return success(food);
   }
 }
 

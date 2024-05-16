@@ -1,7 +1,7 @@
 import { Food } from "../../../core/entities/food";
 import { ConflictError } from "../errors/conflict-error";
-import { Either, failure, success } from "../../../utils/either";
 import { FoodRepository } from "../../../adapters/repositories/food-repository";
+import { Either, failure, success } from "../../../utils/either";
 
 type CreateFoodUseCaseRequest = {
   food_name: string;
@@ -22,25 +22,17 @@ class CreateFoodUseCase {
     image,
   }: CreateFoodUseCaseRequest): Promise<Either<ConflictError, Food>> {
     const foodNameAlreadyExists = await this.foodRepository.findFoodByName(food_name);
+    console.log(foodNameAlreadyExists);
 
     if (foodNameAlreadyExists) {
-      return failure(new ConflictError("Essa comida já existe"));
+      return failure(new ConflictError(`Esse nome ${foodNameAlreadyExists.food_name} já existe`));
     }
 
-    const foodCreated = Food.create(food_name, price, description, category, image);
+    const foodCreated = new Food(food_name, price, description, category, image);
 
-    const id = foodCreated.id;
+    const food = await this.foodRepository.create(foodCreated);
 
-    const food = await this.foodRepository.create({
-      id,
-      food_name,
-      price,
-      description,
-      category,
-      image,
-    });
-
-    return success(food);
+    return success(foodCreated);
   }
 }
 

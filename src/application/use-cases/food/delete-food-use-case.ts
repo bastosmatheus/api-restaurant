@@ -11,11 +11,15 @@ class DeleteFoodUseCase {
   constructor(private foodRepository: FoodRepository) {}
 
   public async execute({ id }: DeleteFoodUseCaseRequest): Promise<Either<NotFoundError, Food>> {
-    const food = await this.foodRepository.delete(id);
+    const foodExists = await this.foodRepository.findFoodById(id);
 
-    if (!food) {
-      return failure(new NotFoundError(`Comida não encontrada com o ID: ${id}`));
+    console.log(foodExists);
+
+    if (!foodExists) {
+      return failure(new NotFoundError(`Não existe nenhum alimento no cardápio com o ID ${id}`));
     }
+
+    const food = await this.foodRepository.delete(id);
 
     return success(food);
   }

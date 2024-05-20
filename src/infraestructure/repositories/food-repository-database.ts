@@ -1,19 +1,18 @@
 import { Food } from "../../core/entities/food";
-import { DatabaseConnection } from "../database/database-connection";
 import { FoodRepository } from "../../adapters/repositories/food-repository";
+import { DatabaseConnection } from "../database/database-connection";
 
 class FoodRepositoryDatabase implements FoodRepository {
   constructor(private databaseConnection: DatabaseConnection) {}
 
   public async findAll(): Promise<Food[]> {
-    const foods = await this.databaseConnection.query<Food>(/*sql*/ `SELECT * FROM foods`);
+    const foods = await this.databaseConnection.query(`SELECT * FROM foods`, []);
 
     return foods;
   }
 
   public async findFoodById(id: string): Promise<Food | null> {
-    const [food] = await this.databaseConnection.query<Food>(/*sql*/ `SELECT * FROM foods 
-      WHERE id = ${id}`);
+    const [food] = await this.databaseConnection.query(`SELECT * FROM foods WHERE id = $1`, [id]);
 
     if (!food) {
       return null;
@@ -23,8 +22,9 @@ class FoodRepositoryDatabase implements FoodRepository {
   }
 
   public async findFoodByName(food_name: string): Promise<Food | null> {
-    const [food] = await this.databaseConnection.query<Food>(/*sql*/ `SELECT * FROM foods 
-      WHERE food_name = ${food_name}`);
+    const [food] = await this.databaseConnection.query(`SELECT * FROM foods WHERE food_name = $1`, [
+      food_name,
+    ]);
 
     if (!food) {
       return null;
@@ -34,34 +34,38 @@ class FoodRepositoryDatabase implements FoodRepository {
   }
 
   public async create({ id, food_name, price, description, category, image }: Food): Promise<Food> {
-    const [food] = await this.databaseConnection
-      .query<Food>(/*sql*/ `INSERT INTO foods (id, food_name, price, description, category, image) 
-      VALUES ((${id}, ${food_name}, ${price}, ${description}, ${category}, ${image})) 
-      
-      RETURNING *`);
+    const [food] = await this.databaseConnection.query(
+      `
+      INSERT INTO foods (id, food_name, price, description, category, image) 
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *`,
+      [id, food_name, price, description, category, image]
+    );
 
     return food;
   }
 
   public async update({ id, food_name, price, description, category, image }: Food): Promise<Food> {
-    const [food] = await this.databaseConnection.query<Food>(/*sql*/ `UPDATE foods
-      SET food_name = ${food_name}, price = ${price}, description = ${description}, category = ${category}, image = ${image}
-      WHERE id = ${id}
-      
-      RETURNING *`);
+    const [food] = await this.databaseConnection.query(
+      `
+      UPDATE foods
+      SET food_name = $2, price = $3, description = $4, category = $5, image = $6
+      WHERE id = $1
+      RETURNING *`,
+      [id, food_name, price, description, category, image]
+    );
 
     return food;
   }
 
-  public async delete(id: string): Promise<Food | null> {
-    const [food] = await this.databaseConnection.query<Food>(/*sql*/ `DELETE FROM foods 
-      WHERE id = ${id} 
-      
-      RETURNING *`);
-
-    if (!food) {
-      return null;
-    }
+  public async delete(id: string): Promise<Food> {
+    const [food] = await this.databaseConnection.query(
+      `
+      DELETE FROM foods 
+      WHERE id = $1
+      RETURNING *`,
+      [id]
+    );
 
     return food;
   }

@@ -1,6 +1,6 @@
 import { Food } from "../../../core/entities/food";
-import { FoodRepository } from "../../../adapters/repositories/food-repository";
 import { NotFoundError } from "../errors/not-found-error";
+import { FoodRepository } from "../../../adapters/repositories/food-repository";
 import { Either, failure, success } from "../../../utils/either";
 
 type FindFoodByIdUseCaseRequest = {
@@ -14,7 +14,7 @@ class FindFoodByIdUseCase {
     const food = await this.foodRepository.findFoodById(id);
 
     if (!food) {
-      return failure(new NotFoundError(`Comida não encontrada com o ID: ${id}`));
+      return failure(new NotFoundError(`Não existe nenhum alimento no cardápio com o ID ${id}`));
     }
 
     return success(food);

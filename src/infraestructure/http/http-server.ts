@@ -1,7 +1,7 @@
 import cors from "cors";
+import { ZodError } from "zod";
 import bodyParser from "body-parser";
 import express, { Request, Response } from "express";
-import { ZodError } from "zod";
 
 type HttpMethods = "post" | "get" | "put" | "patch" | "delete";
 
@@ -23,9 +23,13 @@ class ExpressAdapter implements HttpServer {
     this.app.use(cors());
     this.app.use(express.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
-    this.app.use((err, req, res, next) => {
+    this.app.use((err: unknown, req: unknown, res: Response, next: unknown) => {
       if (err) {
-        return res.status(400).json({ message: "Requisição mal formatada" });
+        return res.status(400).json({
+          type: 400,
+          statusCode: "Bad Request",
+          message: "Requisição mal formatada",
+        });
       }
     });
   }
@@ -36,7 +40,7 @@ class ExpressAdapter implements HttpServer {
         const output: Output = await callback(req.params, req.body);
 
         return res.status(output.statusCode).json(output);
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error instanceof ZodError) {
           return res.status(400).json({
             type: "Bad Request",
@@ -44,8 +48,6 @@ class ExpressAdapter implements HttpServer {
             message: error.issues[0].message,
           });
         }
-
-        console.log(error);
 
         return res.status(500).json({
           type: "Internal Server Error",

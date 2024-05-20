@@ -16,7 +16,7 @@ class FindFoodByNameUseCase {
     const food = await this.foodRepository.findFoodByName(food_name);
 
     if (!food) {
-      return failure(new NotFoundError(`${food_name} não encontrado`));
+      return failure(new NotFoundError(`${food_name} não existe no cardápio`));
     }
 
     return success(food);

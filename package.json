@@ -17,6 +17,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
+    "pg-promise": "^11.6.0",
     "postgres": "^3.4.4",
     "zod": "^3.23.8"
   },

@@ -11,6 +11,14 @@ class FoodRepositoryDatabase implements FoodRepository {
     return foods;
   }
 
+  public async findFoodsByCategory(category: string): Promise<Food[]> {
+    const foods = await this.databaseConnection.query(`SELECT * FROM foods WHERE category = $1`, [
+      category,
+    ]);
+
+    return foods;
+  }
+
   public async findFoodById(id: string): Promise<Food | null> {
     const [food] = await this.databaseConnection.query(`SELECT * FROM foods WHERE id = $1`, [id]);
 

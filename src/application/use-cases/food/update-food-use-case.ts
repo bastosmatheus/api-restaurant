@@ -1,8 +1,8 @@
 import { Food } from "../../../core/entities/food";
-import { FoodRepository } from "../../../adapters/repositories/food-repository";
-import { Either, failure, success } from "../../../utils/either";
 import { NotFoundError } from "../errors/not-found-error";
 import { ConflictError } from "../errors/conflict-error";
+import { FoodRepository } from "../../../adapters/repositories/food-repository";
+import { Either, failure, success } from "../../../utils/either";
 
 type UpdateFoodUseCaseRequest = {
   id: string;
@@ -36,14 +36,13 @@ class UpdateFoodUseCase {
       return failure(new ConflictError(`${foodNameAlreadyExists.food_name} já existe no cardápio`));
     }
 
-    const food = await this.foodRepository.update({
-      id,
-      food_name,
-      price,
-      description,
-      category,
-      image,
-    });
+    foodExists.food_name = food_name;
+    foodExists.price = price;
+    foodExists.description = description;
+    foodExists.category = category;
+    foodExists.image = image;
+
+    const food = await this.foodRepository.update(foodExists);
 
     return success(food);
   }

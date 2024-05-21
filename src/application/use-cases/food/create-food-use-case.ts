@@ -31,7 +31,7 @@ class CreateFoodUseCase {
 
     const food = await this.foodRepository.create(foodCreated);
 
-    return success(foodCreated);
+    return success(food);
   }
 }
 

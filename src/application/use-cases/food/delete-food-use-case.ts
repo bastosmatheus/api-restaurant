@@ -13,8 +13,6 @@ class DeleteFoodUseCase {
   public async execute({ id }: DeleteFoodUseCaseRequest): Promise<Either<NotFoundError, Food>> {
     const foodExists = await this.foodRepository.findFoodById(id);
 
-    console.log(foodExists);
-
     if (!foodExists) {
       return failure(new NotFoundError(`Não existe nenhum alimento no cardápio com o ID ${id}`));
     }

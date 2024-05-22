@@ -8,6 +8,7 @@ import { FindAllFoodsUseCase } from "./application/use-cases/food/find-all-foods
 import { FindFoodByIdUseCase } from "./application/use-cases/food/find-food-by-id-use-case";
 import { FindFoodByNameUseCase } from "./application/use-cases/food/find-food-by-name-use-case";
 import { FoodRepositoryDatabase } from "./infraestructure/repositories/food-repository-database";
+import { FindFoodsByCategoryUseCase } from "./application/use-cases/food/find-foods-by-category-use-case";
 
 // express/banco de dados
 const httpServer = new ExpressAdapter();
@@ -17,14 +18,16 @@ httpServer.listen(3000);
 
 // use cases (FOOD)
 const findAllFoodsUseCase = new FindAllFoodsUseCase(foodRepository);
-const createFoodUseCase = new CreateFoodUseCase(foodRepository);
+const findFoodsByCategoryUseCase = new FindFoodsByCategoryUseCase(foodRepository);
 const findFoodByNameUseCase = new FindFoodByNameUseCase(foodRepository);
 const findFoodByIdUseCase = new FindFoodByIdUseCase(foodRepository);
+const createFoodUseCase = new CreateFoodUseCase(foodRepository);
 const updateFoodUseCase = new UpdateFoodUseCase(foodRepository);
 const deleteFoodUseCase = new DeleteFoodUseCase(foodRepository);
 new FoodControler(
   httpServer,
   findAllFoodsUseCase,
+  findFoodsByCategoryUseCase,
   findFoodByIdUseCase,
   findFoodByNameUseCase,
   createFoodUseCase,

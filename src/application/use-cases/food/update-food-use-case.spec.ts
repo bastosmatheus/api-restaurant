@@ -1,9 +1,9 @@
 import { NotFoundError } from "../errors/not-found-error";
+import { ConflictError } from "../errors/conflict-error";
 import { CreateFoodUseCase } from "./create-food-use-case";
 import { UpdateFoodUseCase } from "./update-food-use-case";
 import { InMemoryFoodRepository } from "../../../infraestructure/repositories/in-memory/in-memory-food-repository";
 import { describe, it, beforeEach, expect } from "vitest";
-import { ConflictError } from "../errors/conflict-error";
 
 let foodRepository: InMemoryFoodRepository;
 let createFoodUseCase: CreateFoodUseCase;

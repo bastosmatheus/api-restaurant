@@ -1,5 +1,5 @@
-import { FoodRepository } from "../../../adapters/repositories/food-repository";
 import { Food } from "../../../core/entities/food";
+import { FoodRepository } from "../../../adapters/repositories/food-repository";
 
 class InMemoryFoodRepository implements FoodRepository {
   private foods: Food[] = [];
@@ -21,7 +21,14 @@ class InMemoryFoodRepository implements FoodRepository {
       return null;
     }
 
-    return food;
+    return Food.restore(
+      food.id,
+      food.food_name,
+      food.price,
+      food.description,
+      food.category,
+      food.image
+    );
   }
 
   public async findFoodByName(food_name: string): Promise<Food | null> {
@@ -31,11 +38,18 @@ class InMemoryFoodRepository implements FoodRepository {
       return null;
     }
 
-    return food;
+    return Food.restore(
+      food.id,
+      food.food_name,
+      food.price,
+      food.description,
+      food.category,
+      food.image
+    );
   }
 
   public async create({ food_name, price, description, category, image }: Food): Promise<Food> {
-    const food = new Food(food_name, price, description, category, image);
+    const food = Food.create(food_name, price, description, category, image);
 
     this.foods.push(food);
 
@@ -45,11 +59,11 @@ class InMemoryFoodRepository implements FoodRepository {
   public async update({ id, food_name, price, description, category, image }: Food): Promise<Food> {
     const foodIndex = this.foods.findIndex((food) => food.id === id);
 
-    this.foods[foodIndex].food_name = food_name;
-    this.foods[foodIndex].price = price;
-    this.foods[foodIndex].description = description;
-    this.foods[foodIndex].category = category;
-    this.foods[foodIndex].image = image;
+    this.foods[foodIndex].setFoodName(food_name);
+    this.foods[foodIndex].setPrice(price);
+    this.foods[foodIndex].setDescription(description);
+    this.foods[foodIndex].setCategory(category);
+    this.foods[foodIndex].setImage(image);
 
     return this.foods[foodIndex];
   }

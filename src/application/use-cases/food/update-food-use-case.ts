@@ -36,11 +36,11 @@ class UpdateFoodUseCase {
       return failure(new ConflictError(`${foodNameAlreadyExists.food_name} já existe no cardápio`));
     }
 
-    foodExists.food_name = food_name;
-    foodExists.price = price;
-    foodExists.description = description;
-    foodExists.category = category;
-    foodExists.image = image;
+    foodExists.setFoodName(food_name);
+    foodExists.setPrice(price);
+    foodExists.setDescription(description);
+    foodExists.setCategory(category);
+    foodExists.setImage(image);
 
     const food = await this.foodRepository.update(foodExists);
 

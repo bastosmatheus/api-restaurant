@@ -7,11 +7,13 @@ import { DeleteFoodUseCase } from "../../application/use-cases/food/delete-food-
 import { FindAllFoodsUseCase } from "../../application/use-cases/food/find-all-foods-use-case";
 import { FindFoodByIdUseCase } from "../../application/use-cases/food/find-food-by-id-use-case";
 import { FindFoodByNameUseCase } from "../../application/use-cases/food/find-food-by-name-use-case";
+import { FindFoodsByCategoryUseCase } from "../../application/use-cases/food/find-foods-by-category-use-case";
 
 class FoodControler {
   constructor(
     private readonly httpServer: HttpServer,
     private readonly findAllFoodsUseCase: FindAllFoodsUseCase,
+    private readonly findFoodsByCategoryUseCase: FindFoodsByCategoryUseCase,
     private readonly findFoodByIdUseCase: FindFoodByIdUseCase,
     private readonly findFoodByNameUseCase: FindFoodByNameUseCase,
     private readonly createFoodUseCase: CreateFoodUseCase,
@@ -28,7 +30,34 @@ class FoodControler {
       };
     });
 
-    this.httpServer.on("get", "/foods/:{id}", async (params: { id: string }) => {
+    this.httpServer.on(
+      "get",
+      "/foods/category/:{category}",
+      async (params: { category: string }, body: unknown) => {
+        const getAllFoodsByCategorySchema = z.object({
+          category: z
+            .string({
+              invalid_type_error: "A categoria do alimento deve ser uma string",
+              required_error: "Informe a categoria do alimento",
+            })
+            .min(3, { message: "A categoria do alimento deve ter no minimo 3 caracteres" }),
+        });
+
+        const { category } = params;
+
+        const getAllFoodsByCategoryValidation = getAllFoodsByCategorySchema.parse({ category });
+
+        const foods = await this.findFoodsByCategoryUseCase.execute({ category });
+
+        return {
+          type: "OK",
+          statusCode: 200,
+          foods,
+        };
+      }
+    );
+
+    this.httpServer.on("get", "/foods/:{id}", async (params: { id: string }, body: unknown) => {
       const getFoodByIdSchema = z.object({
         id: z.string().uuid({ message: "O ID deve ser um uuid" }),
       });
@@ -56,44 +85,44 @@ class FoodControler {
       };
     });
 
-    this.httpServer.on("get", "/foods/name/:{food_name}", async (params: { food_name: string }) => {
-      const getFoodByNameSchema = z.object({
-        food_name: z.string().superRefine((arg, ctx) => {
-          if (Number(arg)) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.invalid_type,
-              expected: "string",
-              received: "number",
-              message: "O nome do alimento deve ser uma string",
-            });
-          }
-        }),
-      });
+    this.httpServer.on(
+      "get",
+      "/foods/name/:{food_name}",
+      async (params: { food_name: string }, body: unknown) => {
+        const getFoodByNameSchema = z.object({
+          food_name: z
+            .string({
+              invalid_type_error: "O nome do alimento deve ser uma string",
+              required_error: "Informe o nome do alimento",
+            })
+            .min(3, { message: "O nome do alimento deve ter no minimo 3 caracteres" }),
+        });
 
-      const { food_name } = params;
+        const { food_name } = params;
 
-      const getFoodByNameValidation = getFoodByNameSchema.parse({ food_name });
+        const getFoodByNameValidation = getFoodByNameSchema.parse({ food_name });
 
-      const food = await this.findFoodByNameUseCase.execute({ food_name });
+        const food = await this.findFoodByNameUseCase.execute({ food_name });
 
-      if (food.isFailure()) {
+        if (food.isFailure()) {
+          return {
+            type: food.value.type,
+            statusCode: food.value.statusCode,
+            message: food.value.message,
+          };
+        }
+
         return {
-          type: food.value.type,
-          statusCode: food.value.statusCode,
-          message: food.value.message,
+          type: "OK",
+          statusCode: 200,
+          food: {
+            ...food.value,
+          },
         };
       }
+    );
 
-      return {
-        type: "OK",
-        statusCode: 200,
-        food: {
-          ...food.value,
-        },
-      };
-    });
-
-    this.httpServer.on("post", "/foods", async (body: Food) => {
+    this.httpServer.on("post", "/foods", async (params: unknown, body: Food) => {
       const createFoodSchema = z.object({
         food_name: z
           .string({

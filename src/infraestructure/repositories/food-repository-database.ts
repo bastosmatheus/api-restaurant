@@ -26,7 +26,14 @@ class FoodRepositoryDatabase implements FoodRepository {
       return null;
     }
 
-    return food;
+    return Food.restore(
+      food.id,
+      food.food_name,
+      food.price,
+      food.description,
+      food.category,
+      food.image
+    );
   }
 
   public async findFoodByName(food_name: string): Promise<Food | null> {
@@ -38,7 +45,14 @@ class FoodRepositoryDatabase implements FoodRepository {
       return null;
     }
 
-    return food;
+    return Food.restore(
+      food.id,
+      food.food_name,
+      food.price,
+      food.description,
+      food.category,
+      food.image
+    );
   }
 
   public async create({ id, food_name, price, description, category, image }: Food): Promise<Food> {

@@ -27,7 +27,7 @@ class CreateFoodUseCase {
       return failure(new ConflictError(`${foodNameAlreadyExists.food_name} já existe no cardápio`));
     }
 
-    const foodCreated = new Food(food_name, price, description, category, image);
+    const foodCreated = Food.create(food_name, price, description, category, image);
 
     const food = await this.foodRepository.create(foodCreated);
 

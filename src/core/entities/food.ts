@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 
 class Food {
-  constructor(
+  private constructor(
     public id: string,
     public food_name: string,
     public price: number,

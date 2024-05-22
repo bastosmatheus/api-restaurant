@@ -1,13 +1,20 @@
 import { randomUUID } from "crypto";
 
 class Delivery {
-  public id: string;
-
   private constructor(
+    public id: string,
     public id_deliveryman: string,
     public id_order: string
-  ) {
-    this.id = randomUUID();
+  ) {}
+
+  static create(id_deliveryman: string, id_order: string) {
+    const id = randomUUID();
+
+    return new Delivery(id, id_deliveryman, id_order);
+  }
+
+  static restore(id: string, id_deliveryman: string, id_order: string) {
+    return new Delivery(id, id_deliveryman, id_order);
   }
 }
 

@@ -1,10 +1,20 @@
 import { randomUUID } from "crypto";
 
 class Pix {
-  public id: string;
+  private constructor(
+    public id: string,
+    public code_generated: string,
+    public id_user: string
+  ) {}
 
-  private constructor(public code_generated: string) {
-    this.id = randomUUID();
+  static create(code_generated: string, id_user: string) {
+    const id = randomUUID();
+
+    return new Pix(id, code_generated, id_user);
+  }
+
+  static restore(id: string, code_generated: string, id_user: string) {
+    return new Pix(id, code_generated, id_user);
   }
 }
 

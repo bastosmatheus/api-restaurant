@@ -1,16 +1,24 @@
-import { randomUUID } from "crypto";
 import { Delivery } from "./delivery";
+import { randomUUID } from "crypto";
 
 class Deliveryman {
-  public id: string;
   public deliveries: Delivery[] = [];
 
   private constructor(
+    public id: string,
     public name: string,
     public email: string,
     public password: string
-  ) {
-    this.id = randomUUID();
+  ) {}
+
+  static create(name: string, email: string, password: string) {
+    const id = randomUUID();
+
+    return new Deliveryman(id, name, email, password);
+  }
+
+  static restore(id: string, name: string, email: string, password: string) {
+    return new Deliveryman(id, name, email, password);
   }
 }
 

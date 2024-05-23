@@ -14,7 +14,7 @@ class DeleteFoodUseCase {
     const foodExists = await this.foodRepository.findFoodById(id);
 
     if (!foodExists) {
-      return failure(new NotFoundError(`Não existe nenhum alimento no cardápio com o ID ${id}`));
+      return failure(new NotFoundError(`Nenhum alimento encontrado com o ID ${id}`));
     }
 
     const food = await this.foodRepository.delete(id);

@@ -27,13 +27,13 @@ class UpdateFoodUseCase {
     const foodExists = await this.foodRepository.findFoodById(id);
 
     if (!foodExists) {
-      return failure(new NotFoundError(`Não existe nenhum alimento no cardápio com o ID ${id}`));
+      return failure(new NotFoundError(`Nenhum alimento encontrado com o ID ${id}`));
     }
 
     const foodNameAlreadyExists = await this.foodRepository.findFoodByName(food_name);
 
     if (foodNameAlreadyExists && foodNameAlreadyExists.id !== id) {
-      return failure(new ConflictError(`${foodNameAlreadyExists.food_name} já existe no cardápio`));
+      return failure(new ConflictError(`${foodNameAlreadyExists.food_name} já está no cardápio`));
     }
 
     foodExists.setFoodName(food_name);

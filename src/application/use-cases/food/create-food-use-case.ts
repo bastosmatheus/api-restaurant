@@ -24,7 +24,7 @@ class CreateFoodUseCase {
     const foodNameAlreadyExists = await this.foodRepository.findFoodByName(food_name);
 
     if (foodNameAlreadyExists) {
-      return failure(new ConflictError(`${foodNameAlreadyExists.food_name} já existe no cardápio`));
+      return failure(new ConflictError(`${foodNameAlreadyExists.food_name} já está no cardápio`));
     }
 
     const foodCreated = Food.create(food_name, price, description, category, image);

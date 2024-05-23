@@ -5,10 +5,10 @@ import express, { Request, Response } from "express";
 
 type HttpMethods = "post" | "get" | "put" | "patch" | "delete";
 
-type HttpServer = {
+interface HttpServer {
   listen(port: number): void;
   on(method: HttpMethods, url: string, callback: Function): void;
-};
+}
 
 type Output = {
   type: string;
@@ -16,7 +16,7 @@ type Output = {
 };
 
 class ExpressAdapter implements HttpServer {
-  public app: express.Express;
+  public readonly app: express.Express;
 
   constructor() {
     this.app = express();

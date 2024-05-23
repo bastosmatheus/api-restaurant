@@ -14,7 +14,7 @@ class FindFoodByIdUseCase {
     const food = await this.foodRepository.findFoodById(id);
 
     if (!food) {
-      return failure(new NotFoundError(`Não existe nenhum alimento no cardápio com o ID ${id}`));
+      return failure(new NotFoundError(`Nenhum alimento encontrado com o ID: ${id}`));
     }
 
     return success(food);

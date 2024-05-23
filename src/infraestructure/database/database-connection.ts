@@ -4,9 +4,9 @@ import { configDotenv } from "dotenv";
 
 const env = configDotenv();
 
-type DatabaseConnection = {
+interface DatabaseConnection {
   query(queryString: string, params: unknown[]): Promise<any>;
-};
+}
 
 class PgpAdapter implements DatabaseConnection {
   private connection: pgp.IDatabase<{}, pg.IClient>;

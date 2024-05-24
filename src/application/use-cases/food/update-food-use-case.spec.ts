@@ -41,7 +41,7 @@ describe("update food by id", () => {
     expect(food.isSuccess()).toBe(true);
   });
 
-  it("should not be possible to update a food if the id does not exist", async () => {
+  it("should not be possible to update a food if the food is not found", async () => {
     await createFoodUseCase.execute({
       food_name: "Macarrão",
       price: 21.99,

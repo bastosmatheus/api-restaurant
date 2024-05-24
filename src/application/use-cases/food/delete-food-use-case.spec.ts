@@ -33,16 +33,14 @@ describe("delete food by id", () => {
     expect(food.isSuccess()).toBe(true);
   });
 
-  it("should not be possible to delete a food if the id does not exist", async () => {
-    const foodCreated = await createFoodUseCase.execute({
+  it("should not be possible to delete a food if the food is not found", async () => {
+    await createFoodUseCase.execute({
       food_name: "Macarrão",
       price: 21.99,
       description: "Macarrão ao molho branco com um sabor delicioso",
       category: "Comida",
       image: "https://img.freepik.com/fotos-gratis/tela-vazia-branca_1194-7555.jpg",
     });
-
-    if (foodCreated.isFailure()) return;
 
     const food = await deleteFoodUseCase.execute({ id: "12031903281390" });
 

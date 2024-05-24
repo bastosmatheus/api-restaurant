@@ -29,7 +29,7 @@ describe("get food by name", () => {
     expect(food.isSuccess()).toBe(true);
   });
 
-  it("should not be possible to get a food if the name does not exist", async () => {
+  it("should not be possible to get a food if the food is not found", async () => {
     await createFoodUseCase.execute({
       food_name: "Macarrão",
       price: 21.99,

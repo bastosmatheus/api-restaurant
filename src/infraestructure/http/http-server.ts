@@ -49,6 +49,8 @@ class ExpressAdapter implements HttpServer {
           });
         }
 
+        console.log(error);
+
         return res.status(500).json({
           type: "Internal Server Error",
           statusCode: 500,

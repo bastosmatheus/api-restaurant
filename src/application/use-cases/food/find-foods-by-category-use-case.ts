@@ -9,7 +9,7 @@ class FindFoodsByCategoryUseCase {
   constructor(private readonly foodRepository: FoodRepository) {}
 
   public async execute({ category }: FindFoodsByCategoryUseCaseRequest): Promise<Food[]> {
-    const foods = await this.foodRepository.findFoodsByCategory(category);
+    const foods = await this.foodRepository.findByCategory(category);
 
     return foods;
   }

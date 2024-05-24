@@ -183,8 +183,8 @@ class FoodControler {
       }
 
       return {
-        type: "OK",
-        statusCode: 200,
+        type: "Created",
+        statusCode: 201,
         food: {
           ...food.value,
         },

@@ -1,7 +1,8 @@
 import { Hasher } from "../../../infraestructure/cryptography/cryptography";
+import { Employee } from "../../../core/entities/employee";
 import { NotFoundError } from "../errors/not-found-error";
-import { failure, success } from "../../../utils/either";
 import { EmployeeRepository } from "../../../adapters/repositories/employee-repository";
+import { Either, failure, success } from "../../../utils/either";
 
 type UpdatePasswordUseCaseRequest = {
   id: string;
@@ -14,7 +15,10 @@ class UpdatePasswordUseCase {
     private hasher: Hasher
   ) {}
 
-  public async execute({ id, password }: UpdatePasswordUseCaseRequest) {
+  public async execute({
+    id,
+    password,
+  }: UpdatePasswordUseCaseRequest): Promise<Either<NotFoundError, Employee>> {
     const employeeExists = await this.employeeRepository.findById(id);
 
     if (!employeeExists) {
@@ -25,7 +29,10 @@ class UpdatePasswordUseCase {
 
     employeeExists.setPassword(passwordHashed);
 
-    const employee = this.employeeRepository.update(employeeExists);
+    const employee = await this.employeeRepository.updatePassword(
+      employeeExists.id,
+      employeeExists.password
+    );
 
     return success(employee);
   }

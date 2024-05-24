@@ -8,13 +8,13 @@ class InMemoryFoodRepository implements FoodRepository {
     return this.foods;
   }
 
-  public async findFoodsByCategory(category: string): Promise<Food[]> {
+  public async findByCategory(category: string): Promise<Food[]> {
     const food = this.foods.filter((food) => food.category === category);
 
     return food;
   }
 
-  public async findFoodById(id: string): Promise<Food | null> {
+  public async findById(id: string): Promise<Food | null> {
     const food = this.foods.find((food) => food.id === id);
 
     if (!food) {
@@ -31,7 +31,7 @@ class InMemoryFoodRepository implements FoodRepository {
     );
   }
 
-  public async findFoodByName(food_name: string): Promise<Food | null> {
+  public async findByName(food_name: string): Promise<Food | null> {
     const food = this.foods.find((food) => food.food_name === food_name);
 
     if (!food) {

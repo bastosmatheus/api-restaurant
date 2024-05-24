@@ -11,7 +11,7 @@ class FindFoodByIdUseCase {
   constructor(private foodRepository: FoodRepository) {}
 
   public async execute({ id }: FindFoodByIdUseCaseRequest): Promise<Either<NotFoundError, Food>> {
-    const food = await this.foodRepository.findFoodById(id);
+    const food = await this.foodRepository.findById(id);
 
     if (!food) {
       return failure(new NotFoundError(`Nenhum alimento encontrado com o ID: ${id}`));

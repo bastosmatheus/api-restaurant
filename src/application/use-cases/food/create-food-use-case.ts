@@ -21,7 +21,7 @@ class CreateFoodUseCase {
     category,
     image,
   }: CreateFoodUseCaseRequest): Promise<Either<ConflictError, Food>> {
-    const foodNameAlreadyExists = await this.foodRepository.findFoodByName(food_name);
+    const foodNameAlreadyExists = await this.foodRepository.findByName(food_name);
 
     if (foodNameAlreadyExists) {
       return failure(new ConflictError(`${foodNameAlreadyExists.food_name} já está no cardápio`));

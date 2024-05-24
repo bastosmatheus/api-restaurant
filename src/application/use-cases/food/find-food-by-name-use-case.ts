@@ -13,7 +13,7 @@ class FindFoodByNameUseCase {
   public async execute({
     food_name,
   }: FindFoodByNameUseCaseRequest): Promise<Either<NotFoundError, Food>> {
-    const food = await this.foodRepository.findFoodByName(food_name);
+    const food = await this.foodRepository.findByName(food_name);
 
     if (!food) {
       return failure(new NotFoundError(`${food_name} não está no cardápio`));

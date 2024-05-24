@@ -11,7 +11,7 @@ class FoodRepositoryDatabase implements FoodRepository {
     return foods;
   }
 
-  public async findFoodsByCategory(category: string): Promise<Food[]> {
+  public async findByCategory(category: string): Promise<Food[]> {
     const foods = await this.databaseConnection.query(`SELECT * FROM foods WHERE category = $1`, [
       category,
     ]);
@@ -19,7 +19,7 @@ class FoodRepositoryDatabase implements FoodRepository {
     return foods;
   }
 
-  public async findFoodById(id: string): Promise<Food | null> {
+  public async findById(id: string): Promise<Food | null> {
     const [food] = await this.databaseConnection.query(`SELECT * FROM foods WHERE id = $1`, [id]);
 
     if (!food) {
@@ -36,7 +36,7 @@ class FoodRepositoryDatabase implements FoodRepository {
     );
   }
 
-  public async findFoodByName(food_name: string): Promise<Food | null> {
+  public async findByName(food_name: string): Promise<Food | null> {
     const [food] = await this.databaseConnection.query(`SELECT * FROM foods WHERE food_name = $1`, [
       food_name,
     ]);

@@ -24,13 +24,13 @@ class UpdateFoodUseCase {
     category,
     image,
   }: UpdateFoodUseCaseRequest): Promise<Either<NotFoundError | ConflictError, Food>> {
-    const foodExists = await this.foodRepository.findFoodById(id);
+    const foodExists = await this.foodRepository.findById(id);
 
     if (!foodExists) {
       return failure(new NotFoundError(`Nenhum alimento encontrado com o ID ${id}`));
     }
 
-    const foodNameAlreadyExists = await this.foodRepository.findFoodByName(food_name);
+    const foodNameAlreadyExists = await this.foodRepository.findByName(food_name);
 
     if (foodNameAlreadyExists && foodNameAlreadyExists.id !== id) {
       return failure(new ConflictError(`${foodNameAlreadyExists.food_name} já está no cardápio`));

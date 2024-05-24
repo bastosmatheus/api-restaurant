@@ -1,47 +1,51 @@
-import { ConflictError } from "../errors/conflict-error";
+import { NotFoundError } from "../errors/not-found-error";
 import { BcryptAdapter } from "../../../infraestructure/cryptography/cryptography";
 import { CreateEmployeeUseCase } from "./create-employee-use-case";
+import { FindEmployeeByIdUseCase } from "./find-employee-by-id-use-case";
 import { InMemoryEmployeeRepository } from "../../../infraestructure/repositories/in-memory/in-memory-employee-repository";
 import { describe, expect, beforeEach, it } from "vitest";
 
 let employeeRepository: InMemoryEmployeeRepository;
 let createEmployeeUseCase: CreateEmployeeUseCase;
+let findEmployeeByIdUseCase: FindEmployeeByIdUseCase;
 let bcryptAdapter: BcryptAdapter;
 
-describe("create a new employee", () => {
+describe("get employee by id", () => {
   beforeEach(() => {
     employeeRepository = new InMemoryEmployeeRepository();
     bcryptAdapter = new BcryptAdapter();
     createEmployeeUseCase = new CreateEmployeeUseCase(employeeRepository, bcryptAdapter);
+    findEmployeeByIdUseCase = new FindEmployeeByIdUseCase(employeeRepository);
   });
 
-  it("should be possible to create an employee", async () => {
-    const employee = await createEmployeeUseCase.execute({
+  it("should be possible to get an employee by id", async () => {
+    const employeeCreated = await createEmployeeUseCase.execute({
       name: "Matheus",
       email: "matheus@gmail.com",
       password: "102030",
       employee_role: "Cozinheiro",
     });
 
+    if (employeeCreated.isFailure()) return;
+
+    const id = employeeCreated.value.id;
+
+    const employee = await findEmployeeByIdUseCase.execute({ id });
+
     expect(employee.isSuccess()).toBe(true);
   });
 
-  it("should not be possible to create an employee if the email already exists", async () => {
+  it("should not be possible to get an employee if the employee is not found", async () => {
     await createEmployeeUseCase.execute({
-      name: "Matheus 1",
+      name: "Matheus",
       email: "matheus@gmail.com",
       password: "102030",
-      employee_role: "Garçom",
+      employee_role: "Cozinheiro",
     });
 
-    const employee = await createEmployeeUseCase.execute({
-      name: "Matheus 2",
-      email: "matheus@gmail.com",
-      password: "123456",
-      employee_role: "Gerente",
-    });
+    const employee = await findEmployeeByIdUseCase.execute({ id: "19djaokjsdnui1102381-daonsmdo" });
 
     expect(employee.isFailure()).toBe(true);
-    expect(employee.value).toBeInstanceOf(ConflictError);
+    expect(employee.value).toBeInstanceOf(NotFoundError);
   });
 });

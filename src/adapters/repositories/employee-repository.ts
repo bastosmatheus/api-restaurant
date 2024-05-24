@@ -7,7 +7,7 @@ interface EmployeeRepository {
   findByEmail(email: string): Promise<Employee | null>;
   create(employee: Employee): Promise<Employee>;
   update(employee: Employee): Promise<Employee>;
-  updatePassword(id: string, newPassword: string): Promise<Employee>;
+  updatePassword(id: string, password: string): Promise<Employee>;
   delete(id: string): Promise<Employee>;
 }
 

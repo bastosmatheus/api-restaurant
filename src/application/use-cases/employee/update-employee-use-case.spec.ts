@@ -1,47 +1,55 @@
-import { ConflictError } from "../errors/conflict-error";
 import { BcryptAdapter } from "../../../infraestructure/cryptography/cryptography";
+import { NotFoundError } from "../errors/not-found-error";
 import { CreateEmployeeUseCase } from "./create-employee-use-case";
+import { UpdateEmployeeUseCase } from "./update-employee-use-case";
 import { InMemoryEmployeeRepository } from "../../../infraestructure/repositories/in-memory/in-memory-employee-repository";
 import { describe, expect, beforeEach, it } from "vitest";
 
 let employeeRepository: InMemoryEmployeeRepository;
 let createEmployeeUseCase: CreateEmployeeUseCase;
+let updateEmployeeUseCase: UpdateEmployeeUseCase;
 let bcryptAdapter: BcryptAdapter;
 
-describe("create a new employee", () => {
+describe("update an employee", () => {
   beforeEach(() => {
     employeeRepository = new InMemoryEmployeeRepository();
+    updateEmployeeUseCase = new UpdateEmployeeUseCase(employeeRepository);
     bcryptAdapter = new BcryptAdapter();
     createEmployeeUseCase = new CreateEmployeeUseCase(employeeRepository, bcryptAdapter);
   });
 
-  it("should be possible to create an employee", async () => {
-    const employee = await createEmployeeUseCase.execute({
+  it("should be possible to update an employee by id", async () => {
+    const employeeCreated = await createEmployeeUseCase.execute({
       name: "Matheus",
       email: "matheus@gmail.com",
       password: "102030",
       employee_role: "Cozinheiro",
     });
 
-    expect(employee.isSuccess()).toBe(true);
-  });
+    if (employeeCreated.isFailure()) return;
 
-  it("should not be possible to create an employee if the email already exists", async () => {
-    await createEmployeeUseCase.execute({
-      name: "Matheus 1",
-      email: "matheus@gmail.com",
-      password: "102030",
+    const id = employeeCreated.value.id;
+
+    const employee = await updateEmployeeUseCase.execute({
+      id,
+      name: "Matheus",
       employee_role: "Garçom",
     });
 
-    const employee = await createEmployeeUseCase.execute({
-      name: "Matheus 2",
+    expect(employee.isSuccess()).toBe(true);
+  });
+
+  it("should not be possible to update an employee if the employee is not found", async () => {
+    await createEmployeeUseCase.execute({
+      name: "Matheus",
       email: "matheus@gmail.com",
-      password: "123456",
-      employee_role: "Gerente",
+      password: "102030",
+      employee_role: "Cozinheiro",
     });
 
+    const employee = await updateEmployeeUseCase.execute({ id: "1892371u89321mdkaodmq" });
+
     expect(employee.isFailure()).toBe(true);
-    expect(employee.value).toBeInstanceOf(ConflictError);
+    expect(employee.value).toBeInstanceOf(NotFoundError);
   });
 });

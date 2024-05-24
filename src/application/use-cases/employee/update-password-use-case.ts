@@ -5,7 +5,7 @@ import { EmployeeRepository } from "../../../adapters/repositories/employee-repo
 
 type UpdatePasswordUseCaseRequest = {
   id: string;
-  newPassword: string;
+  password: string;
 };
 
 class UpdatePasswordUseCase {
@@ -14,14 +14,14 @@ class UpdatePasswordUseCase {
     private hasher: Hasher
   ) {}
 
-  public async execute({ id, newPassword }: UpdatePasswordUseCaseRequest) {
+  public async execute({ id, password }: UpdatePasswordUseCaseRequest) {
     const employeeExists = await this.employeeRepository.findById(id);
 
     if (!employeeExists) {
       return failure(new NotFoundError(`Nenhum funcionário encontrado com o ID: ${id}`));
     }
 
-    const passwordHashed = await this.hasher.hash(newPassword);
+    const passwordHashed = await this.hasher.hash(password);
 
     employeeExists.setPassword(passwordHashed);
 

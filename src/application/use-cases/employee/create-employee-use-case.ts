@@ -1,8 +1,8 @@
+import { Hasher } from "../../../infraestructure/cryptography/cryptography";
 import { ConflictError } from "../errors/conflict-error";
 import { EmployeeRepository } from "../../../adapters/repositories/employee-repository";
 import { Employee, EmployeeRole } from "../../../core/entities/employee";
 import { Either, failure, success } from "../../../utils/either";
-import { Hasher } from "../../../infraestructure/cryptography/cryptography";
 
 type CreateEmployeeUseCaseRequest = {
   name: string;

@@ -113,8 +113,8 @@ class EmployeeController {
         const getEmployeeByEmailSchema = z.object({
           email: z
             .string({
-              invalid_type_error: "O email do funcionário deve ser uma string",
-              required_error: "Informe o email do funcionário",
+              invalid_type_error: "O email deve ser uma string",
+              required_error: "Informe o email",
             })
             .email({ message: "Email inválido" }),
         });
@@ -147,20 +147,20 @@ class EmployeeController {
       const createEmployeeSchema = z.object({
         name: z
           .string({
-            invalid_type_error: "O nome do funcionário deve ser uma string",
-            required_error: "Informe o nome do funcionário",
+            invalid_type_error: "O nome deve ser uma string",
+            required_error: "Informe o nome",
           })
-          .min(3, { message: "O nome do funcionário deve ter no minimo 3 caracteres" }),
+          .min(3, { message: "O nome deve ter no minimo 3 caracteres" }),
         email: z
           .string({
-            invalid_type_error: "O email do funcionário deve ser uma string",
-            required_error: "Informe o email do funcionário",
+            invalid_type_error: "O email deve ser uma string",
+            required_error: "Informe o email",
           })
           .email({ message: "Email inválido" }),
         password: z
           .string({
-            required_error: "Informe a senha do funcionário",
-            invalid_type_error: "A senha do funcionário deve ser uma string",
+            required_error: "Informe a senha",
+            invalid_type_error: "A senha deve ser uma string",
           })
           .min(5, { message: "A senha deve ter no mínimo 5 caracteres" }),
         employee_role: z.enum(["Cozinheiro", "Garçom", "Gerente"], {
@@ -229,10 +229,10 @@ class EmployeeController {
           }),
           name: z
             .string({
-              invalid_type_error: "O nome do funcionário deve ser uma string",
-              required_error: "Informe o nome do funcionário",
+              invalid_type_error: "O nome deve ser uma string",
+              required_error: "Informe o nome",
             })
-            .min(3, { message: "O nome do funcionário deve ter no minimo 3 caracteres" }),
+            .min(3, { message: "O nome deve ter no minimo 3 caracteres" }),
           employee_role: z.enum(["Cozinheiro", "Garçom", "Gerente"], {
             errorMap: (status, ctx) => {
               if (status.code === "invalid_enum_value") {

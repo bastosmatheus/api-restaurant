@@ -13,13 +13,22 @@ import { CreateEmployeeUseCase } from "./application/use-cases/employee/create-e
 import { UpdateEmployeeUseCase } from "./application/use-cases/employee/update-employee-use-case";
 import { UpdatePasswordUseCase } from "./application/use-cases/employee/update-password-use-case";
 import { DeleteEmployeeUseCase } from "./application/use-cases/employee/delete-employee-use-case";
+import { DeliverymanController } from "./adapters/controllers/deliveryman-controller";
 import { FoodRepositoryDatabase } from "./infraestructure/repositories/food-repository-database";
 import { FindAllEmployeesUseCase } from "./application/use-cases/employee/find-all-employees-use-case";
 import { FindEmployeeByIdUseCase } from "./application/use-cases/employee/find-employee-by-id-use-case";
+import { CreateDeliverymanUseCase } from "./application/use-cases/deliveryman/create-deliveryman-use-case";
+import { UpdateDeliverymanUseCase } from "./application/use-cases/deliveryman/update-deliveryman-use-case";
+import { DeleteDeliverymanUseCase } from "./application/use-cases/deliveryman/delete-deliveryman-use-case";
 import { FindFoodsByCategoryUseCase } from "./application/use-cases/food/find-foods-by-category-use-case";
 import { EmployeeRepositoryDatabase } from "./infraestructure/repositories/employee-repository-database";
 import { FindEmployeesByRoleUseCase } from "./application/use-cases/employee/find-employees-by-role-use-case";
 import { FindEmployeeByEmailUseCase } from "./application/use-cases/employee/find-employee-by-email-use-case";
+import { FindAllDeliverymansUseCase } from "./application/use-cases/deliveryman/find-all-deliverymans-use-case";
+import { FindDeliverymanByIdUseCase } from "./application/use-cases/deliveryman/find-deliveryman-by-id-use-case";
+import { DeliverymanRepositoryDatabase } from "./infraestructure/repositories/deliveryman-repository-database";
+import { FindDeliverymanByEmailUseCase } from "./application/use-cases/deliveryman/find-deliveryman-by-email-use-case";
+import { UpdatePasswordDeliverymanUseCase } from "./application/use-cases/deliveryman/update-password-deliveryman-use-case";
 
 // adapters/banco de dados
 const httpServer = new ExpressAdapter();
@@ -27,6 +36,7 @@ const connection = new PgpAdapter();
 const cryptography = new BcryptAdapter();
 const foodRepository = new FoodRepositoryDatabase(connection);
 const employeeRepository = new EmployeeRepositoryDatabase(connection);
+const deliverymanRepository = new DeliverymanRepositoryDatabase(connection);
 httpServer.listen(3000);
 
 // use cases (FOOD)
@@ -67,4 +77,26 @@ new EmployeeController(
   updateEmployeeUseCase,
   updatePasswordUseCase,
   deleteEmployeeUseCase
+);
+
+// use cases (DELIVERYMAN)
+const findAllDeliverymansUseCase = new FindAllDeliverymansUseCase(deliverymanRepository);
+const findDeliverymanByIdUseCase = new FindDeliverymanByIdUseCase(deliverymanRepository);
+const findDeliverymanByEmailUseCase = new FindDeliverymanByEmailUseCase(deliverymanRepository);
+const createDeliverymanUseCase = new CreateDeliverymanUseCase(deliverymanRepository, cryptography);
+const updateDeliverymanUseCase = new UpdateDeliverymanUseCase(deliverymanRepository);
+const updatePasswordDeliverymanUseCase = new UpdatePasswordDeliverymanUseCase(
+  deliverymanRepository,
+  cryptography
+);
+const deleteDeliverymanUseCase = new DeleteDeliverymanUseCase(deliverymanRepository);
+new DeliverymanController(
+  httpServer,
+  findAllDeliverymansUseCase,
+  findDeliverymanByIdUseCase,
+  findDeliverymanByEmailUseCase,
+  createDeliverymanUseCase,
+  updateDeliverymanUseCase,
+  updatePasswordDeliverymanUseCase,
+  deleteDeliverymanUseCase
 );

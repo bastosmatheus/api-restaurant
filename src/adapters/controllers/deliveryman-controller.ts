@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { HttpServer } from "../../infraestructure/http/http-server";
 import { Deliveryman } from "../../core/entities/deliveryman";
-import { UpdatePasswordUseCase } from "../../application/use-cases/deliveryman/update-password-deliveryman-use-case";
+import { UpdatePasswordDeliverymanUseCase } from "../../application/use-cases/deliveryman/update-password-deliveryman-use-case";
 import { UpdateDeliverymanUseCase } from "../../application/use-cases/deliveryman/update-deliveryman-use-case";
 import { CreateDeliverymanUseCase } from "../../application/use-cases/deliveryman/create-deliveryman-use-case";
 import { DeleteDeliverymanUseCase } from "../../application/use-cases/deliveryman/delete-deliveryman-use-case";
@@ -17,13 +17,17 @@ class DeliverymanController {
     private readonly findDeliverymanByEmailUseCase: FindDeliverymanByEmailUseCase,
     private readonly createDeliverymanUseCase: CreateDeliverymanUseCase,
     private readonly updateDeliverymanUseCase: UpdateDeliverymanUseCase,
-    private readonly updatePasswordUseCase: UpdatePasswordUseCase,
+    private readonly updatePasswordDeliverymanUseCase: UpdatePasswordDeliverymanUseCase,
     private readonly deleteDeliverymanUseCase: DeleteDeliverymanUseCase
   ) {
     this.httpServer.on("get", "/deliverymans", async () => {
       const deliverymans = await this.findAllDeliverymansUseCase.execute();
 
-      return deliverymans;
+      return {
+        type: "OK",
+        statusCode: 200,
+        deliverymans,
+      };
     });
 
     this.httpServer.on(
@@ -117,8 +121,8 @@ class DeliverymanController {
             invalid_type_error: "A senha deve ser uma string",
           })
           .min(5, { message: "A senha deve ter no mínimo 5 caracteres" }),
-        birthday_date: z.date({
-          required_error: "Informe uma data",
+        birthday_date: z.coerce.date({
+          required_error: "Informe a data",
           invalid_type_error: "Informe uma data",
         }),
       });
@@ -222,7 +226,7 @@ class DeliverymanController {
           password,
         });
 
-        const deliveryman = await this.updatePasswordUseCase.execute({
+        const deliveryman = await this.updatePasswordDeliverymanUseCase.execute({
           id,
           password,
         });

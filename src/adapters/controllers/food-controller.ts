@@ -9,7 +9,7 @@ import { FindFoodByIdUseCase } from "../../application/use-cases/food/find-food-
 import { FindFoodByNameUseCase } from "../../application/use-cases/food/find-food-by-name-use-case";
 import { FindFoodsByCategoryUseCase } from "../../application/use-cases/food/find-foods-by-category-use-case";
 
-class FoodControler {
+class FoodController {
   constructor(
     private readonly httpServer: HttpServer,
     private readonly findAllFoodsUseCase: FindAllFoodsUseCase,
@@ -294,4 +294,4 @@ class FoodControler {
   }
 }
 
-export { FoodControler };
+export { FoodController };

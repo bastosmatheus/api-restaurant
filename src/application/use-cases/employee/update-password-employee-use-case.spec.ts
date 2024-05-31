@@ -1,20 +1,23 @@
 import { BcryptAdapter } from "../../../infraestructure/cryptography/cryptography";
 import { NotFoundError } from "../errors/not-found-error";
 import { CreateEmployeeUseCase } from "./create-employee-use-case";
-import { UpdatePasswordUseCase } from "./update-password-use-case";
+import { UpdatePasswordEmployeeUseCase } from "./update-password-employee-use-case";
 import { InMemoryEmployeeRepository } from "../../../infraestructure/repositories/in-memory/in-memory-employee-repository";
 import { describe, expect, beforeEach, it } from "vitest";
 
 let employeeRepository: InMemoryEmployeeRepository;
 let createEmployeeUseCase: CreateEmployeeUseCase;
-let updatePasswordUseCase: UpdatePasswordUseCase;
+let updatePasswordEmployeeUseCase: UpdatePasswordEmployeeUseCase;
 let bcryptAdapter: BcryptAdapter;
 
 describe("update an employee", () => {
   beforeEach(() => {
     employeeRepository = new InMemoryEmployeeRepository();
     bcryptAdapter = new BcryptAdapter();
-    updatePasswordUseCase = new UpdatePasswordUseCase(employeeRepository, bcryptAdapter);
+    updatePasswordEmployeeUseCase = new UpdatePasswordEmployeeUseCase(
+      employeeRepository,
+      bcryptAdapter
+    );
     createEmployeeUseCase = new CreateEmployeeUseCase(employeeRepository, bcryptAdapter);
   });
 
@@ -30,7 +33,7 @@ describe("update an employee", () => {
 
     const id = employeeCreated.value.id;
 
-    const employee = await updatePasswordUseCase.execute({
+    const employee = await updatePasswordEmployeeUseCase.execute({
       id,
       password: "12345",
     });
@@ -46,7 +49,7 @@ describe("update an employee", () => {
       employee_role: "Cozinheiro",
     });
 
-    const employee = await updatePasswordUseCase.execute({ id: "1892371u89321mdkaodmq" });
+    const employee = await updatePasswordEmployeeUseCase.execute({ id: "1892371u89321mdkaodmq" });
 
     expect(employee.isFailure()).toBe(true);
     expect(employee.value).toBeInstanceOf(NotFoundError);

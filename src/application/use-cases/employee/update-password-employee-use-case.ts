@@ -4,12 +4,12 @@ import { NotFoundError } from "../errors/not-found-error";
 import { EmployeeRepository } from "../../../adapters/repositories/employee-repository";
 import { Either, failure, success } from "../../../utils/either";
 
-type UpdatePasswordUseCaseRequest = {
+type UpdatePasswordEmployeeUseCaseRequest = {
   id: string;
   password: string;
 };
 
-class UpdatePasswordUseCase {
+class UpdatePasswordEmployeeUseCase {
   constructor(
     private employeeRepository: EmployeeRepository,
     private hasher: Hasher
@@ -18,7 +18,7 @@ class UpdatePasswordUseCase {
   public async execute({
     id,
     password,
-  }: UpdatePasswordUseCaseRequest): Promise<Either<NotFoundError, Employee>> {
+  }: UpdatePasswordEmployeeUseCaseRequest): Promise<Either<NotFoundError, Employee>> {
     const employeeExists = await this.employeeRepository.findById(id);
 
     if (!employeeExists) {
@@ -38,4 +38,4 @@ class UpdatePasswordUseCase {
   }
 }
 
-export { UpdatePasswordUseCase };
+export { UpdatePasswordEmployeeUseCase };

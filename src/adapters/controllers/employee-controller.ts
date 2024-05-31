@@ -3,7 +3,7 @@ import { HttpServer } from "../../infraestructure/http/http-server";
 import { CreateEmployeeUseCase } from "../../application/use-cases/employee/create-employee-use-case";
 import { DeleteEmployeeUseCase } from "../../application/use-cases/employee/delete-employee-use-case";
 import { UpdateEmployeeUseCase } from "../../application/use-cases/employee/update-employee-use-case";
-import { UpdatePasswordUseCase } from "../../application/use-cases/employee/update-password-use-case";
+import { UpdatePasswordEmployeeUseCase } from "../../application/use-cases/employee/update-password-employee-use-case";
 import { Employee, EmployeeRole } from "../../core/entities/employee";
 import { FindAllEmployeesUseCase } from "../../application/use-cases/employee/find-all-employees-use-case";
 import { FindEmployeeByIdUseCase } from "../../application/use-cases/employee/find-employee-by-id-use-case";
@@ -19,7 +19,7 @@ class EmployeeController {
     private readonly findEmployeeByEmailUseCase: FindEmployeeByEmailUseCase,
     private readonly createEmployeeUseCase: CreateEmployeeUseCase,
     private readonly updateEmployeeUseCase: UpdateEmployeeUseCase,
-    private readonly updatePasswordUseCase: UpdatePasswordUseCase,
+    private readonly updatePasswordEmployeeUseCase: UpdatePasswordEmployeeUseCase,
     private readonly deleteEmployeeUseCase: DeleteEmployeeUseCase
   ) {
     this.httpServer.on("get", "/employees", async () => {
@@ -313,7 +313,7 @@ class EmployeeController {
           password,
         });
 
-        const employee = await this.updatePasswordUseCase.execute({
+        const employee = await this.updatePasswordEmployeeUseCase.execute({
           id,
           password,
         });

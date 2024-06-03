@@ -3,12 +3,12 @@ import { HttpServer } from "../../infraestructure/http/http-server";
 import { CreateEmployeeUseCase } from "../../application/use-cases/employee/create-employee-use-case";
 import { DeleteEmployeeUseCase } from "../../application/use-cases/employee/delete-employee-use-case";
 import { UpdateEmployeeUseCase } from "../../application/use-cases/employee/update-employee-use-case";
-import { UpdatePasswordEmployeeUseCase } from "../../application/use-cases/employee/update-password-employee-use-case";
 import { Employee, EmployeeRole } from "../../core/entities/employee";
 import { FindAllEmployeesUseCase } from "../../application/use-cases/employee/find-all-employees-use-case";
 import { FindEmployeeByIdUseCase } from "../../application/use-cases/employee/find-employee-by-id-use-case";
 import { FindEmployeeByEmailUseCase } from "../../application/use-cases/employee/find-employee-by-email-use-case";
 import { FindEmployeesByRoleUseCase } from "../../application/use-cases/employee/find-employees-by-role-use-case";
+import { UpdatePasswordEmployeeUseCase } from "../../application/use-cases/employee/update-password-employee-use-case";
 
 class EmployeeController {
   constructor(
@@ -36,7 +36,7 @@ class EmployeeController {
       "get",
       "/employees/role/:{employee_role}",
       async (params: { employee_role: EmployeeRole }, body: unknown) => {
-        const getAllEmployeesByRoleSchema = z.object({
+        const findEmployeesByRoleSchema = z.object({
           employee_role: z.enum(["Cozinheiro", "Garçom", "Gerente"], {
             errorMap: (status, ctx) => {
               if (status.code === "invalid_enum_value") {
@@ -62,7 +62,7 @@ class EmployeeController {
 
         const { employee_role } = params;
 
-        const getAllEmployeesByRoleValidation = getAllEmployeesByRoleSchema.parse({
+        findEmployeesByRoleSchema.parse({
           employee_role,
         });
 
@@ -77,7 +77,7 @@ class EmployeeController {
     );
 
     this.httpServer.on("get", "/employees/:{id}", async (params: { id: string }, body: unknown) => {
-      const getEmployeeByIdSchema = z.object({
+      const findEmployeeByIdSchema = z.object({
         id: z.string().uuid({
           message: "O ID deve ser um uuid",
         }),
@@ -85,7 +85,7 @@ class EmployeeController {
 
       const { id } = params;
 
-      const getEmployeeByIdValidation = getEmployeeByIdSchema.parse({ id });
+      findEmployeeByIdSchema.parse({ id });
 
       const employee = await this.findEmployeeByIdUseCase.execute({ id });
 
@@ -110,7 +110,7 @@ class EmployeeController {
       "get",
       "/employees/email/:{email}",
       async (params: { email: string }, body: unknown) => {
-        const getEmployeeByEmailSchema = z.object({
+        const findEmployeeByEmailSchema = z.object({
           email: z
             .string({
               invalid_type_error: "O email deve ser uma string",
@@ -121,7 +121,7 @@ class EmployeeController {
 
         const { email } = params;
 
-        const getEmployeeByEmailValidation = getEmployeeByEmailSchema.parse({ email });
+        findEmployeeByEmailSchema.parse({ email });
 
         const employee = await this.findEmployeeByEmailUseCase.execute({ email });
 
@@ -188,7 +188,7 @@ class EmployeeController {
 
       const { name, email, password, employee_role } = body;
 
-      const createEmployeeValidation = createEmployeeSchema.parse({
+      createEmployeeSchema.parse({
         name,
         email,
         password,
@@ -259,7 +259,7 @@ class EmployeeController {
         const { id } = params;
         const { name, employee_role } = body;
 
-        const updateEmployeeValidation = updateEmployeeSchema.parse({
+        updateEmployeeSchema.parse({
           id,
           name,
           employee_role,
@@ -308,7 +308,7 @@ class EmployeeController {
         const { id } = params;
         const { password } = body;
 
-        const updatePasswordValidation = updatePasswordSchema.parse({
+        updatePasswordSchema.parse({
           id,
           password,
         });
@@ -348,7 +348,7 @@ class EmployeeController {
 
         const { id } = params;
 
-        const deleteEmployeeValidation = deleteEmployeeSchema.parse({ id });
+        deleteEmployeeSchema.parse({ id });
 
         const employee = await this.deleteEmployeeUseCase.execute({ id });
 

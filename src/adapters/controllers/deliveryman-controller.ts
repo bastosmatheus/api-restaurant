@@ -34,7 +34,7 @@ class DeliverymanController {
       "get",
       "/deliverymans/:{id}",
       async (params: { id: string }, body: unknown) => {
-        const getDeliverymanByIdSchema = z.object({
+        const findDeliverymanByIdSchema = z.object({
           id: z.string().uuid({
             message: "O ID deve ser um uuid",
           }),
@@ -42,7 +42,7 @@ class DeliverymanController {
 
         const { id } = params;
 
-        const getDeliverymanByIdValidation = getDeliverymanByIdSchema.parse({ id });
+        findDeliverymanByIdSchema.parse({ id });
 
         const deliveryman = await this.findDeliverymanByIdUseCase.execute({ id });
 
@@ -68,7 +68,7 @@ class DeliverymanController {
       "get",
       "/deliverymans/email/:{email}",
       async (params: { email: string }, body: unknown) => {
-        const getDeliverymanByEmailSchema = z.object({
+        const findDeliverymanByEmailSchema = z.object({
           email: z
             .string({
               invalid_type_error: "O email deve ser uma string",
@@ -79,7 +79,7 @@ class DeliverymanController {
 
         const { email } = params;
 
-        getDeliverymanByEmailSchema.parse({ email });
+        findDeliverymanByEmailSchema.parse({ email });
 
         const deliveryman = await this.findDeliverymanByEmailUseCase.execute({ email });
 
@@ -129,7 +129,7 @@ class DeliverymanController {
 
       const { name, email, password, birthday_date } = body;
 
-      const createDeliverymanValidation = createDeliverymanSchema.parse({
+      createDeliverymanSchema.parse({
         name,
         email,
         password,
@@ -164,7 +164,7 @@ class DeliverymanController {
       "put",
       "/deliverymans/:{id}",
       async (params: { id: string }, body: Deliveryman) => {
-        const createDeliverymanSchema = z.object({
+        const updateDeliverymanSchema = z.object({
           id: z.string().uuid({
             message: "O ID deve ser um uuid",
           }),
@@ -177,7 +177,7 @@ class DeliverymanController {
         const { id } = params;
         const { name } = body;
 
-        const createDeliverymanValidation = createDeliverymanSchema.parse({ id, name });
+        updateDeliverymanSchema.parse({ id, name });
 
         const deliveryman = await this.updateDeliverymanUseCase.execute({
           id,
@@ -221,7 +221,7 @@ class DeliverymanController {
         const { id } = params;
         const { password } = body;
 
-        const updatePasswordValidation = updatePasswordSchema.parse({
+        updatePasswordSchema.parse({
           id,
           password,
         });
@@ -261,7 +261,7 @@ class DeliverymanController {
 
         const { id } = params;
 
-        const deleteDeliverymanValidation = deleteDeliverymanSchema.parse({ id });
+        deleteDeliverymanSchema.parse({ id });
 
         const deliveryman = await this.deleteDeliverymanUseCase.execute({ id });
 

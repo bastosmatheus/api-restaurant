@@ -32,7 +32,7 @@ class CardController {
       "get",
       "/cards/user/${id_user}",
       async (params: { id_user: string }, body: unknown) => {
-        const getCardsByUserSchema = z.object({
+        const findCardsByUserSchema = z.object({
           id_user: z.string().uuid({
             message: "O ID deve ser um uuid",
           }),
@@ -40,7 +40,7 @@ class CardController {
 
         const { id_user } = params;
 
-        const getCardsByUserValidation = getCardsByUserSchema.parse({ id_user });
+        findCardsByUserSchema.parse({ id_user });
 
         const cards = await this.findCardsByUserUseCase.execute({ id_user });
 
@@ -53,7 +53,7 @@ class CardController {
     );
 
     this.httpServer.on("get", "/cards/:{id}", async (params: { id: string }, body: unknown) => {
-      const getCardByIdSchema = z.object({
+      const findCardByIdSchema = z.object({
         id: z.string().uuid({
           message: "O ID deve ser um uuid",
         }),
@@ -61,7 +61,7 @@ class CardController {
 
       const { id } = params;
 
-      const getCardByIdValidation = getCardByIdSchema.parse({ id });
+      findCardByIdSchema.parse({ id });
 
       const card = await this.findCardByIdUseCase.execute({ id });
 
@@ -86,7 +86,7 @@ class CardController {
       "get",
       "/cards/card_number/:{card_number}",
       async (params: { card_number: number }, body: unknown) => {
-        const getCardByCardNumberSchema = z.object({
+        const findCardByCardNumberSchema = z.object({
           card_number: z
             .number({
               required_error: "Informe o número do cartão",
@@ -98,7 +98,7 @@ class CardController {
 
         const { card_number } = params;
 
-        const getCardByCardNumberValidation = getCardByCardNumberSchema.parse({ card_number });
+        findCardByCardNumberSchema.parse({ card_number });
 
         const card = await this.findCardByCardNumberUseCase.execute({ card_number });
 
@@ -146,7 +146,7 @@ class CardController {
 
       const { card_holder_name, card_number, expiration_date, id_user } = body;
 
-      const createCardValidation = createCardSchema.parse({
+      createCardSchema.parse({
         card_holder_name,
         card_number,
         expiration_date,
@@ -186,7 +186,7 @@ class CardController {
 
       const { id } = params;
 
-      const deleteCardValidation = deleteCardSchema.parse({ id });
+      deleteCardSchema.parse({ id });
 
       const card = await this.deleteCardUseCase.execute({ id });
 

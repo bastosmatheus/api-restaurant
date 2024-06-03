@@ -49,7 +49,13 @@ class ExpressAdapter implements HttpServer {
           });
         }
 
-        console.log(error);
+        if (error instanceof Error) {
+          return res.status(400).json({
+            type: "Bad Request",
+            statusCode: 400,
+            message: error.message,
+          });
+        }
 
         return res.status(500).json({
           type: "Internal Server Error",

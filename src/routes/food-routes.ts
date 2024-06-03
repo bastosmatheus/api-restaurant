@@ -1,6 +1,6 @@
-import { PgpAdapter } from "../infraestructure/database/database-connection";
 import { HttpServer } from "../infraestructure/http/http-server";
 import { FoodController } from "../adapters/controllers/food-controller";
+import { DatabaseConnection } from "../infraestructure/database/database-connection";
 import { FoodRepositoryDatabase } from "../infraestructure/repositories/food-repository-database";
 import {
   FindAllFoodsUseCase,
@@ -16,7 +16,7 @@ class FoodRoutes {
   private readonly foodRepository: FoodRepositoryDatabase;
 
   constructor(
-    private readonly connection: PgpAdapter,
+    private readonly connection: DatabaseConnection,
     private readonly httpServer: HttpServer
   ) {
     this.foodRepository = new FoodRepositoryDatabase(this.connection);

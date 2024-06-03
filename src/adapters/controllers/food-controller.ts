@@ -34,7 +34,7 @@ class FoodController {
       "get",
       "/foods/category/:{category}",
       async (params: { category: string }, body: unknown) => {
-        const getAllFoodsByCategorySchema = z.object({
+        const findFoodsByCategorySchema = z.object({
           category: z
             .string({
               invalid_type_error: "A categoria do alimento deve ser uma string",
@@ -45,7 +45,7 @@ class FoodController {
 
         const { category } = params;
 
-        const getAllFoodsByCategoryValidation = getAllFoodsByCategorySchema.parse({ category });
+        findFoodsByCategorySchema.parse({ category });
 
         const foods = await this.findFoodsByCategoryUseCase.execute({ category });
 
@@ -58,13 +58,13 @@ class FoodController {
     );
 
     this.httpServer.on("get", "/foods/:{id}", async (params: { id: string }, body: unknown) => {
-      const getFoodByIdSchema = z.object({
+      const findFoodByIdSchema = z.object({
         id: z.string().uuid({ message: "O ID deve ser um uuid" }),
       });
 
       const { id } = params;
 
-      const getFoodByIdValidation = getFoodByIdSchema.parse({ id });
+      findFoodByIdSchema.parse({ id });
 
       const food = await this.findFoodByIdUseCase.execute({ id });
 
@@ -89,7 +89,7 @@ class FoodController {
       "get",
       "/foods/name/:{food_name}",
       async (params: { food_name: string }, body: unknown) => {
-        const getFoodByNameSchema = z.object({
+        const findFoodByNameSchema = z.object({
           food_name: z
             .string({
               invalid_type_error: "O nome do alimento deve ser uma string",
@@ -100,7 +100,7 @@ class FoodController {
 
         const { food_name } = params;
 
-        const getFoodByNameValidation = getFoodByNameSchema.parse({ food_name });
+        findFoodByNameSchema.parse({ food_name });
 
         const food = await this.findFoodByNameUseCase.execute({ food_name });
 
@@ -158,7 +158,7 @@ class FoodController {
 
       const { food_name, price, description, category, image } = body;
 
-      const createFoodValidation = createFoodSchema.parse({
+      createFoodSchema.parse({
         food_name,
         price,
         description,
@@ -229,7 +229,7 @@ class FoodController {
       const { id } = params;
       const { food_name, price, description, category, image } = body;
 
-      const updateFoodValidation = updateFoodSchema.parse({
+      updateFoodSchema.parse({
         id,
         food_name,
         price,
@@ -265,13 +265,13 @@ class FoodController {
     });
 
     this.httpServer.on("delete", "/foods/:{id}", async (params: { id: string }) => {
-      const deleteFoodByIdSchema = z.object({
+      const deleteFoodSchema = z.object({
         id: z.string().uuid({ message: "O ID deve ser um uuid" }),
       });
 
       const { id } = params;
 
-      const deleteFoodByIdValidation = deleteFoodByIdSchema.parse({ id });
+      deleteFoodSchema.parse({ id });
 
       const food = await this.deleteFoodUseCase.execute({ id });
 

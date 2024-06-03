@@ -31,7 +31,7 @@ class UserController {
     });
 
     this.httpServer.on("get", "/users/:{id}", async (params: { id: string }, body: unknown) => {
-      const getUserByIdSchema = z.object({
+      const findUserByIdSchema = z.object({
         id: z.string().uuid({
           message: "O ID deve ser um uuid",
         }),
@@ -39,7 +39,7 @@ class UserController {
 
       const { id } = params;
 
-      const getUserByIdValidation = getUserByIdSchema.parse({ id });
+      findUserByIdSchema.parse({ id });
 
       const user = await this.findUserByIdUseCase.execute({ id });
 
@@ -64,7 +64,7 @@ class UserController {
       "get",
       "/users/email/:{email}",
       async (params: { email: string }, body: unknown) => {
-        const getUserByEmailSchema = z.object({
+        const findUserByEmailSchema = z.object({
           email: z
             .string({
               invalid_type_error: "O email deve ser uma string",
@@ -75,7 +75,7 @@ class UserController {
 
         const { email } = params;
 
-        const getUserByEmailValemailation = getUserByEmailSchema.parse({ email });
+        findUserByEmailSchema.parse({ email });
 
         const user = await this.findUserByEmailUseCase.execute({ email });
 
@@ -121,7 +121,7 @@ class UserController {
 
       const { name, email, password } = body;
 
-      const createUserValidation = createUserSchema.parse({ name, email, password });
+      createUserSchema.parse({ name, email, password });
 
       const user = await this.createUserUseCase.execute({ name, email, password });
 
@@ -158,7 +158,7 @@ class UserController {
       const { id } = params;
       const { name } = body;
 
-      const updateUserValidation = updateUserSchema.parse({ id, name });
+      updateUserSchema.parse({ id, name });
 
       const user = await this.updateUserUseCase.execute({ id, name });
 
@@ -195,7 +195,7 @@ class UserController {
       const { id } = params;
       const { password } = body;
 
-      const updatePasswordUserValidation = updatePasswordUserSchema.parse({ id, password });
+      updatePasswordUserSchema.parse({ id, password });
 
       const user = await this.updatePasswordUserUseCase.execute({ id, password });
 
@@ -225,7 +225,7 @@ class UserController {
 
       const { id } = params;
 
-      const deleteUserValidation = deleteUserSchema.parse({ id });
+      deleteUserSchema.parse({ id });
 
       const user = await this.deleteUserUseCase.execute({ id });
 

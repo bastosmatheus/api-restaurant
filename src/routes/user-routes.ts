@@ -1,7 +1,8 @@
-import { PgpAdapter } from "../infraestructure/database/database-connection";
+import { Hasher } from "../infraestructure/cryptography/cryptography";
 import { HttpServer } from "../infraestructure/http/http-server";
-import { BcryptAdapter } from "../infraestructure/cryptography/cryptography";
 import { UserRepository } from "../adapters/repositories/user-repository";
+import { UserController } from "../adapters/controllers/user-controller";
+import { DatabaseConnection } from "../infraestructure/database/database-connection";
 import { UserRepositoryDatabase } from "../infraestructure/repositories/user-repository-database";
 import {
   CreateUserUseCase,
@@ -12,15 +13,14 @@ import {
   UpdatePasswordUserUseCase,
   UpdateUserUseCase,
 } from "../application/use-cases/user/index";
-import { UserController } from "../adapters/controllers/user-controller";
 
 class UserRoutes {
   private readonly userRepository: UserRepository;
 
   constructor(
-    private readonly connection: PgpAdapter,
+    private readonly connection: DatabaseConnection,
     private readonly httpServer: HttpServer,
-    private readonly bcryptAdapter: BcryptAdapter
+    private readonly cryptography: Hasher
   ) {
     this.userRepository = new UserRepositoryDatabase(this.connection);
   }
@@ -29,11 +29,11 @@ class UserRoutes {
     const findAllUsersUseCase = new FindAllUsersUseCase(this.userRepository);
     const findUserByIdUseCase = new FindUserByIdUseCase(this.userRepository);
     const findUserByEmailUseCase = new FindUserByEmailUseCase(this.userRepository);
-    const createUserUseCase = new CreateUserUseCase(this.userRepository, this.bcryptAdapter);
+    const createUserUseCase = new CreateUserUseCase(this.userRepository, this.cryptography);
     const updateUserUseCase = new UpdateUserUseCase(this.userRepository);
     const updatePasswordUserUseCase = new UpdatePasswordUserUseCase(
       this.userRepository,
-      this.bcryptAdapter
+      this.cryptography
     );
     const deleteUserUseCase = new DeleteUserUseCase(this.userRepository);
 

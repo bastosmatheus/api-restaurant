@@ -1,8 +1,8 @@
-import { PgpAdapter } from "../infraestructure/database/database-connection";
 import { HttpServer } from "../infraestructure/http/http-server";
 import { CardRepository } from "../adapters/repositories/card-repository";
 import { CardController } from "../adapters/controllers/card-controller";
 import { UserRepository } from "../adapters/repositories/user-repository";
+import { DatabaseConnection } from "../infraestructure/database/database-connection";
 import { UserRepositoryDatabase } from "../infraestructure/repositories/user-repository-database";
 import { CardRepositoryDatabase } from "../infraestructure/repositories/card-repository-database";
 import {
@@ -19,7 +19,7 @@ class CardRoutes {
   private readonly userRepository: UserRepository;
 
   constructor(
-    private readonly connection: PgpAdapter,
+    private readonly connection: DatabaseConnection,
     private readonly httpServer: HttpServer
   ) {
     this.cardRepository = new CardRepositoryDatabase(this.connection);

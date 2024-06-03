@@ -1,6 +1,6 @@
-import { PgpAdapter } from "../infraestructure/database/database-connection";
+import { Hasher } from "../infraestructure/cryptography/cryptography";
 import { HttpServer } from "../infraestructure/http/http-server";
-import { BcryptAdapter } from "../infraestructure/cryptography/cryptography";
+import { DatabaseConnection } from "../infraestructure/database/database-connection";
 import { EmployeeController } from "../adapters/controllers/employee-controller";
 import { EmployeeRepositoryDatabase } from "../infraestructure/repositories/employee-repository-database";
 import {
@@ -18,9 +18,9 @@ class EmployeeRoutes {
   private readonly employeeRepository: EmployeeRepositoryDatabase;
 
   constructor(
-    private readonly connection: PgpAdapter,
+    private readonly connection: DatabaseConnection,
     private readonly httpServer: HttpServer,
-    private readonly bcryptAdapter: BcryptAdapter
+    private readonly cryptography: Hasher
   ) {
     this.employeeRepository = new EmployeeRepositoryDatabase(this.connection);
   }
@@ -32,11 +32,11 @@ class EmployeeRoutes {
     const findEmployeeByIdUseCase = new FindEmployeeByIdUseCase(this.employeeRepository);
     const createEmployeeUseCase = new CreateEmployeeUseCase(
       this.employeeRepository,
-      this.bcryptAdapter
+      this.cryptography
     );
     const updatePasswordEmployeeUseCase = new UpdatePasswordEmployeeUseCase(
       this.employeeRepository,
-      this.bcryptAdapter
+      this.cryptography
     );
     const updateEmployeeUseCase = new UpdateEmployeeUseCase(this.employeeRepository);
     const deleteEmployeeUseCase = new DeleteEmployeeUseCase(this.employeeRepository);

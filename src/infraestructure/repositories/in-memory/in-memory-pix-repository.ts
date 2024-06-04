@@ -40,15 +40,13 @@ class InMemoryPixRepository implements PixRepository {
     return Pix.restore(pix.id, pix.code, pix.time_pix_generated, pix.id_user, pix.status);
   }
 
-  public async create({ id_user }: Pix): Promise<Pix> {
-    const pix = Pix.create(id_user);
-
+  public async create(pix: Pix): Promise<Pix> {
     this.pixs.push(pix);
 
     return pix;
   }
 
-  public async updateStatus(id: string, status: StatusPix): Promise<Pix> {
+  public async updateStatus(id: string, status: "Pago" | "Expirado"): Promise<Pix> {
     const pixIndex = this.pixs.findIndex((pix) => pix.id === id);
 
     this.pixs[pixIndex].status = status;

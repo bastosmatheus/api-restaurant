@@ -48,22 +48,20 @@ class InMemoryFoodRepository implements FoodRepository {
     );
   }
 
-  public async create({ food_name, price, description, category, image }: Food): Promise<Food> {
-    const food = Food.create(food_name, price, description, category, image);
-
+  public async create(food: Food): Promise<Food> {
     this.foods.push(food);
 
     return food;
   }
 
-  public async update({ id, food_name, price, description, category, image }: Food): Promise<Food> {
-    const foodIndex = this.foods.findIndex((food) => food.id === id);
+  public async update(food: Food): Promise<Food> {
+    const foodIndex = this.foods.findIndex((food) => food.id === food.id);
 
-    this.foods[foodIndex].setFoodName(food_name);
-    this.foods[foodIndex].setPrice(price);
-    this.foods[foodIndex].setDescription(description);
-    this.foods[foodIndex].setCategory(category);
-    this.foods[foodIndex].setImage(image);
+    this.foods[foodIndex].food_name = food.food_name;
+    this.foods[foodIndex].price = food.price;
+    this.foods[foodIndex].description = food.description;
+    this.foods[foodIndex].category = food.category;
+    this.foods[foodIndex].image = food.image;
 
     return this.foods[foodIndex];
   }

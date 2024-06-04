@@ -46,14 +46,7 @@ class InMemoryCardRepository implements CardRepository {
     );
   }
 
-  public async create({
-    card_holder_name,
-    card_number,
-    expiration_date,
-    id_user,
-  }: Card): Promise<Card> {
-    const card = Card.create(card_holder_name, card_number, expiration_date, id_user);
-
+  public async create(card: Card): Promise<Card> {
     this.cards.push(card);
 
     return card;

@@ -46,9 +46,7 @@ class InMemoryEmployeeRepository implements EmployeeRepository {
     );
   }
 
-  public async create({ name, email, password, employee_role }: Employee): Promise<Employee> {
-    const employee = Employee.create(name, email, password, employee_role);
-
+  public async create(employee: Employee): Promise<Employee> {
     this.employees.push(employee);
 
     return employee;
@@ -57,8 +55,8 @@ class InMemoryEmployeeRepository implements EmployeeRepository {
   public async update({ id, name, employee_role }: Employee): Promise<Employee> {
     const employeeIndex = this.employees.findIndex((employee) => employee.id === id);
 
-    this.employees[employeeIndex].setName(name);
-    this.employees[employeeIndex].setEmployeeRole(employee_role);
+    this.employees[employeeIndex].name = name;
+    this.employees[employeeIndex].employee_role = employee_role;
 
     return this.employees[employeeIndex];
   }
@@ -66,7 +64,7 @@ class InMemoryEmployeeRepository implements EmployeeRepository {
   public async updatePassword(id: string, password: string): Promise<Employee> {
     const employeeIndex = this.employees.findIndex((employee) => employee.id === id);
 
-    this.employees[employeeIndex].setPassword(password);
+    this.employees[employeeIndex].password = password;
 
     return this.employees[employeeIndex];
   }

@@ -42,9 +42,7 @@ class InMemoryDeliverymanRepository implements DeliverymanRepository {
     );
   }
 
-  public async create({ name, email, password, birthday_date }: Deliveryman): Promise<Deliveryman> {
-    const deliveryman = Deliveryman.create(name, email, password, birthday_date);
-
+  public async create(deliveryman: Deliveryman): Promise<Deliveryman> {
     this.deliverymans.push(deliveryman);
 
     return deliveryman;
@@ -53,7 +51,7 @@ class InMemoryDeliverymanRepository implements DeliverymanRepository {
   public async update({ id, name }: Deliveryman): Promise<Deliveryman> {
     const deliverymanIndex = this.deliverymans.findIndex((deliveryman) => deliveryman.id === id);
 
-    this.deliverymans[deliverymanIndex].setName(name);
+    this.deliverymans[deliverymanIndex].name = name;
 
     return this.deliverymans[deliverymanIndex];
   }
@@ -61,7 +59,7 @@ class InMemoryDeliverymanRepository implements DeliverymanRepository {
   public async updatePassword(id: string, password: string): Promise<Deliveryman> {
     const deliverymanIndex = this.deliverymans.findIndex((deliveryman) => deliveryman.id === id);
 
-    this.deliverymans[deliverymanIndex].setPassword(password);
+    this.deliverymans[deliverymanIndex].password = password;
 
     return this.deliverymans[deliverymanIndex];
   }

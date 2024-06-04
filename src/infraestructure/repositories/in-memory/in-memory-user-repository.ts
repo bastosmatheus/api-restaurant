@@ -44,18 +44,16 @@ class InMemoryUserRepository implements UserRepository {
     );
   }
 
-  public async create({ name, email, password }: User): Promise<User> {
-    const user = User.create(name, email, password);
-
+  public async create(user: User): Promise<User> {
     this.users.push(user);
 
     return user;
   }
 
-  public async update({ id, name }: User): Promise<User> {
-    const userIndex = this.users.findIndex((user) => user.id === id);
+  public async update(user: User): Promise<User> {
+    const userIndex = this.users.findIndex((userFind) => userFind.id === user.id);
 
-    this.users[userIndex].setName(name);
+    this.users[userIndex].name = user.name;
 
     return this.users[userIndex];
   }
@@ -63,7 +61,7 @@ class InMemoryUserRepository implements UserRepository {
   public async updatePasword(id: string, password: string): Promise<User> {
     const userIndex = this.users.findIndex((user) => user.id === id);
 
-    this.users[userIndex].setPassword(password);
+    this.users[userIndex].password = password;
 
     return this.users[userIndex];
   }

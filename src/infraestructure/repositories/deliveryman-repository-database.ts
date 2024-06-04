@@ -1,19 +1,43 @@
-import { DeliverymanRepository } from "../../adapters/repositories/deliveryman-repository";
 import { Deliveryman } from "../../core/entities/deliveryman";
 import { DatabaseConnection } from "../database/database-connection";
+import { DeliverymanRepository } from "../../adapters/repositories/deliveryman-repository";
 
 class DeliverymanRepositoryDatabase implements DeliverymanRepository {
   constructor(private databaseConnection: DatabaseConnection) {}
 
   public async findAll(): Promise<Deliveryman[]> {
-    const deliverymans = await this.databaseConnection.query(`SELECT * FROM deliverymans`, []);
+    const deliverymans = await this.databaseConnection.query(
+      `
+      SELECT 
+      deliverymans.id,
+      deliverymans.name,
+      deliverymans.email,
+      deliverymans.birthday_date
+      FROM 
+        deliverymans
+      GROUP BY
+        deliverymans.id
+      `,
+      []
+    );
 
     return deliverymans;
   }
 
   public async findById(id: string): Promise<Deliveryman | null> {
     const [deliveryman] = await this.databaseConnection.query(
-      `SELECT * FROM deliverymans WHERE id = $1`,
+      `
+      SELECT 
+      deliverymans.id,
+      deliverymans.name,
+      deliverymans.email,
+      deliverymans.birthday_date
+      FROM 
+        deliverymans
+      WHERE deliverymans.id = $1
+      GROUP BY
+        deliverymans.id
+      `,
       [id]
     );
 
@@ -33,7 +57,18 @@ class DeliverymanRepositoryDatabase implements DeliverymanRepository {
 
   public async findByEmail(email: string): Promise<Deliveryman | null> {
     const [deliveryman] = await this.databaseConnection.query(
-      `SELECT * FROM deliverymans WHERE email = $1`,
+      `
+      SELECT 
+      deliverymans.id,
+      deliverymans.name,
+      deliverymans.email,
+      deliverymans.birthday_date
+      FROM 
+        deliverymans
+      WHERE deliverymans.email = $1
+      GROUP BY
+        deliverymans.id
+      `,
       [email]
     );
 
@@ -57,14 +92,13 @@ class DeliverymanRepositoryDatabase implements DeliverymanRepository {
     email,
     password,
     birthday_date,
-    deliveries,
   }: Deliveryman): Promise<Deliveryman> {
     const [deliveryman] = await this.databaseConnection.query(
       `
-      INSERT INTO deliverymans (id, name, email, password, birthday_date deliveries)
+      INSERT INTO deliverymans (id, name, email, password, birthday_date)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *`,
-      [id, name, email, password, birthday_date, deliveries]
+      [id, name, email, password, birthday_date]
     );
 
     return deliveryman;
@@ -86,10 +120,10 @@ class DeliverymanRepositoryDatabase implements DeliverymanRepository {
   public async updatePassword(id: string, password: string): Promise<Deliveryman> {
     const [deliverymans] = await this.databaseConnection.query(
       `
-        UPDATE deliverymans
-        SET password = $2
-        WHERE id = $1
-        RETURNING *`,
+      UPDATE deliverymans
+      SET password = $2
+      WHERE id = $1
+      RETURNING *`,
       [id, password]
     );
 

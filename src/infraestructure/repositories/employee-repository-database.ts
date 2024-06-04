@@ -6,14 +6,17 @@ class EmployeeRepositoryDatabase implements EmployeeRepository {
   constructor(private databaseConnection: DatabaseConnection) {}
 
   public async findAll(): Promise<Employee[]> {
-    const employees = await this.databaseConnection.query(`SELECT * FROM employees`, []);
+    const employees = await this.databaseConnection.query(
+      `SELECT employees.id, employees.name, employees.email, employees.employee_role FROM employees`,
+      []
+    );
 
     return employees;
   }
 
   public async findByRole(employee_role: EmployeeRole): Promise<Employee[]> {
     const employees = await this.databaseConnection.query(
-      `SELECT * FROM employees WHERE employee_role = $1`,
+      `SELECT employees.id, employees.name, employees.email, employees.employee_role FROM employees WHERE employee_role = $1`,
       [employee_role]
     );
 
@@ -22,7 +25,7 @@ class EmployeeRepositoryDatabase implements EmployeeRepository {
 
   public async findById(id: string): Promise<Employee | null> {
     const [employee] = await this.databaseConnection.query(
-      `SELECT * FROM employees WHERE id = $1`,
+      `SELECT employees.id, employees.name, employees.email, employees.employee_role FROM employees WHERE id = $1`,
       [id]
     );
 
@@ -41,7 +44,7 @@ class EmployeeRepositoryDatabase implements EmployeeRepository {
 
   public async findByEmail(email: string): Promise<Employee | null> {
     const [employee] = await this.databaseConnection.query(
-      `SELECT * FROM employees WHERE email = $1`,
+      `SELECT employees.id, employees.name, employees.email, employees.employee_role FROM employees WHERE email = $1`,
       [email]
     );
 

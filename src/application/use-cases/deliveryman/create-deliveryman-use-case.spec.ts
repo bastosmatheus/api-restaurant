@@ -44,4 +44,15 @@ describe("create a new deliveryman", () => {
     expect(deliveryman.isFailure()).toBe(true);
     expect(deliveryman.value).toBeInstanceOf(ConflictError);
   });
+
+  it("should not be possible to create a deliveryman if the deliveryman is less 18", async () => {
+    await expect(async () => {
+      await createDeliverymanUseCase.execute({
+        name: "Matheus 2",
+        email: "matheus@gmail.com",
+        password: "102030",
+        birthday_date: new Date("2012-09-10"),
+      });
+    }).rejects.toThrowError("Cadastro proibido para menores de 18 anos");
+  });
 });

@@ -1,3 +1,4 @@
+import { NotFoundError } from "../errors/not-found-error";
 import { BcryptAdapter } from "../../../infraestructure/cryptography/cryptography";
 import { CreateUserUseCase } from "../user/create-user-use-case";
 import { CreateCardUseCase } from "./create-card-use-case";
@@ -5,7 +6,6 @@ import { InMemoryCardRepository } from "../../../infraestructure/repositories/in
 import { InMemoryUserRepository } from "../../../infraestructure/repositories/in-memory/in-memory-user-repository";
 import { FindCardByCardNumberUseCase } from "./find-card-by-card-number-use-case";
 import { describe, it, beforeEach, expect } from "vitest";
-import { NotFoundError } from "../errors/not-found-error";
 
 let userRepository: InMemoryUserRepository;
 let cardRepository: InMemoryCardRepository;
@@ -38,7 +38,7 @@ describe("get card by card number", () => {
     const cardCreated = await createCardUseCase.execute({
       card_holder_name: "Matheus",
       card_number: "12345678910",
-      expiration_date: new Date(),
+      expiration_date: new Date("2025-03-06"),
       id_user,
     });
 
@@ -65,11 +65,11 @@ describe("get card by card number", () => {
     await createCardUseCase.execute({
       card_holder_name: "Matheus",
       card_number: "12345678910",
-      expiration_date: new Date(),
+      expiration_date: new Date("2025-03-06"),
       id_user,
     });
 
-    const card = await findCardByCardNumberUseCase.execute({ card_number: 1020304050 });
+    const card = await findCardByCardNumberUseCase.execute({ card_number: "1020304050" });
 
     expect(card.isFailure()).toBe(true);
     expect(card.value).toBeInstanceOf(NotFoundError);

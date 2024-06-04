@@ -4,7 +4,7 @@ import { CardRepository } from "../../../adapters/repositories/card-repository";
 import { Either, failure, success } from "../../../utils/either";
 
 type FindCardByCardNumberUseCaseRequest = {
-  card_number: number;
+  card_number: string;
 };
 
 class FindCardByCardNumberUseCase {

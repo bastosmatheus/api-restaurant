@@ -37,14 +37,14 @@ describe("get all cards", () => {
     await createCardUseCase.execute({
       card_holder_name: "Matheus",
       card_number: "12345678910",
-      expiration_date: new Date(),
+      expiration_date: new Date("2025-03-06"),
       id_user,
     });
 
     await createCardUseCase.execute({
       card_holder_name: "Lucas",
       card_number: "12345678911",
-      expiration_date: new Date(),
+      expiration_date: new Date("2025-03-06"),
       id_user,
     });
 

@@ -38,8 +38,6 @@ class CreateCardUseCase {
 
     const cardCreated = Card.create(card_holder_name, card_number, expiration_date, id_user);
 
-    userExists.addCards(cardCreated);
-
     const card = await this.cardRepository.create(cardCreated);
 
     return success(card);

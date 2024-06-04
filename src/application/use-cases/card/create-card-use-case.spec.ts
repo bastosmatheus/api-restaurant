@@ -36,7 +36,7 @@ describe("create a new card", () => {
     const card = await createCardUseCase.execute({
       card_holder_name: "Matheus",
       card_number: "12345678910",
-      expiration_date: new Date(),
+      expiration_date: new Date("2025-03-06"),
       id_user,
     });
 
@@ -53,8 +53,8 @@ describe("create a new card", () => {
     const card = await createCardUseCase.execute({
       card_holder_name: "Matheus",
       card_number: "12345678910",
-      expiration_date: new Date(),
-      id_user: "aodijq90178pdaoamd",
+      expiration_date: new Date("2025-03-06"),
+      id_user: "diuajdioqopdqiodjqniduqn",
     });
 
     expect(card.isFailure()).toBe(true);
@@ -75,18 +75,39 @@ describe("create a new card", () => {
     await createCardUseCase.execute({
       card_holder_name: "Lucas",
       card_number: "12345678910",
-      expiration_date: new Date(),
+      expiration_date: new Date("2025-03-06"),
       id_user,
     });
 
     const card = await createCardUseCase.execute({
       card_holder_name: "Matheus",
       card_number: "12345678910",
-      expiration_date: new Date(),
+      expiration_date: new Date("2025-03-06"),
       id_user,
     });
 
     expect(card.isFailure()).toBe(true);
     expect(card.value).toBeInstanceOf(ConflictError);
+  });
+
+  it("should not be possible to create a card if the card is expired", async () => {
+    const user = await createUserUseCase.execute({
+      name: "Matheus",
+      email: "matheus@gmail.com",
+      password: "123456",
+    });
+
+    if (user.isFailure()) return;
+
+    const id_user = user.value.id;
+
+    await expect(async () => {
+      await createCardUseCase.execute({
+        card_holder_name: "Lucas",
+        card_number: "12345678910",
+        expiration_date: new Date("2020-03-06"),
+        id_user,
+      });
+    }).rejects.toThrowError("O cartão está expirado");
   });
 });

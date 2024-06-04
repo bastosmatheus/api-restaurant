@@ -38,7 +38,7 @@ describe("delete a card by id", () => {
     const cardCreated = await createCardUseCase.execute({
       card_holder_name: "Matheus",
       card_number: "12345678910",
-      expiration_date: new Date(),
+      expiration_date: new Date("2025-03-06"),
       id_user,
     });
 
@@ -65,7 +65,7 @@ describe("delete a card by id", () => {
     await createCardUseCase.execute({
       card_holder_name: "Matheus",
       card_number: "12345678910",
-      expiration_date: new Date(),
+      expiration_date: new Date("2025-03-06"),
       id_user,
     });
 

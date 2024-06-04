@@ -30,7 +30,7 @@ class CardController {
 
     this.httpServer.on(
       "get",
-      "/cards/user/${id_user}",
+      "/cards/user/:{id_user}",
       async (params: { id_user: string }, body: unknown) => {
         const findCardsByUserSchema = z.object({
           id_user: z.string().uuid({

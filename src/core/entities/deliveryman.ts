@@ -14,6 +14,12 @@ class Deliveryman {
   static create(name: string, email: string, password: string, birthday_date: Date) {
     const id = randomUUID();
 
+    const age = Deliveryman.calculateAge(new Date(birthday_date));
+
+    if (age < 18) {
+      throw new Error("Cadastro proibido para menores de 18 anos");
+    }
+
     return new Deliveryman(id, name, email, password, birthday_date);
   }
 
@@ -26,6 +32,21 @@ class Deliveryman {
     deliveries: Delivery[]
   ) {
     return new Deliveryman(id, name, email, password, birthday_date, deliveries);
+  }
+
+  private static calculateAge(birthday_date: Date) {
+    let age = new Date().getFullYear() - birthday_date.getFullYear();
+    const currentMonth = new Date().getMonth();
+    const currentDay = new Date().getDate();
+
+    if (
+      currentMonth < birthday_date.getMonth() ||
+      (currentMonth === birthday_date.getMonth() && currentDay < birthday_date.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
   }
 
   public getId() {
@@ -58,10 +79,6 @@ class Deliveryman {
 
   public setPassword(password: string) {
     this.password = password;
-  }
-
-  public updateDeliveries(delivery: Delivery) {
-    this.deliveries.push(delivery);
   }
 }
 

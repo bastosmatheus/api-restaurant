@@ -67,18 +67,6 @@ class User {
   public setPassword(password: string) {
     this.password = password;
   }
-
-  public addPixs(pix: Pix) {
-    this.pixs.push(pix);
-  }
-
-  public addCards(card: Card) {
-    this.cards.push(card);
-  }
-
-  public addOrders(order: Order) {
-    this.orders.push(order);
-  }
 }
 
 export { User };

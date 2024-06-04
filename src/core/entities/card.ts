@@ -17,6 +17,12 @@ class Card {
   ) {
     const id = randomUUID();
 
+    const validDate = Card.calculateDate(new Date(expiration_date));
+
+    if (!validDate) {
+      throw new Error("O cartão está expirado");
+    }
+
     return new Card(id, card_holder_name, card_number, expiration_date, id_user);
   }
 
@@ -28,6 +34,15 @@ class Card {
     id_user: string
   ) {
     return new Card(id, card_holder_name, card_number, expiration_date, id_user);
+  }
+
+  private static calculateDate(expiration_date: Date) {
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+    expiration_date.setHours(0, 0, 0, 0);
+
+    return expiration_date > today;
   }
 
   public getId() {

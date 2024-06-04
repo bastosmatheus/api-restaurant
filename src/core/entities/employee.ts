@@ -1,10 +1,6 @@
 import { randomUUID } from "crypto";
 
-enum EmployeeRole {
-  WAITER = "Garçom",
-  CHEF = "Cozinheiro",
-  MANAGER = "Gerente",
-}
+type EmployeeRole = "Garçom" | "Cozinheiro" | "Gerente";
 
 class Employee {
   private constructor(
@@ -29,6 +25,10 @@ class Employee {
     employee_role: EmployeeRole
   ) {
     return new Employee(id, name, email, password, employee_role);
+  }
+
+  public getId() {
+    return this.id;
   }
 
   public getName() {

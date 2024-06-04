@@ -1,30 +1,66 @@
-import { Food } from "./food";
 import { randomUUID } from "crypto";
+import { OrderFood } from "./order-food";
+
+type StatusOrder =
+  | "Aguardando pagamento"
+  | "Pagamento confirmado"
+  | "Preparando pedido"
+  | "Saiu para entrega"
+  | "Pedido concluido"
+  | "Cancelado";
 
 class Order {
   private constructor(
     public id: string,
-    public foods: Food[],
     public id_user: string,
     public id_pix: string | null,
-    public id_card: string | null
+    public id_card: string | null,
+    public amount: number = 0,
+    public status: StatusOrder = "Aguardando pagamento",
+    public order_food: OrderFood[] = []
   ) {}
 
-  static create(foods: Food[], id_user: string, id_pix: string | null, id_card: string | null) {
+  static create(id_user: string, id_pix: string | null, id_card: string | null) {
     const id = randomUUID();
 
-    return new Order(id, foods, id_user, id_pix, id_card);
+    if (id_pix === null && id_card === null) {
+      throw new Error("Escolha alguma forma de pagamento: pix ou cartão");
+    }
+
+    if (id_pix !== null && id_card !== null) {
+      throw new Error("Escolha apenas uma forma de pagamento: pix ou cartão");
+    }
+
+    return new Order(id, id_user, id_pix, id_card);
   }
 
   static restore(
     id: string,
-    foods: Food[],
     id_user: string,
     id_pix: string | null,
-    id_card: string | null
+    id_card: string | null,
+    amount: number,
+    status: StatusOrder,
+    order_food: OrderFood[]
   ) {
-    return new Order(id, foods, id_user, id_pix, id_card);
+    return new Order(id, id_user, id_pix, id_card, amount, status, order_food);
+  }
+
+  public getId() {
+    return this.id;
+  }
+
+  public getStatus() {
+    return this.status;
+  }
+
+  public getAmount() {
+    return this.amount;
+  }
+
+  public updateStatus(status: StatusOrder) {
+    return (this.status = status);
   }
 }
 
-export { Order };
+export { Order, StatusOrder };

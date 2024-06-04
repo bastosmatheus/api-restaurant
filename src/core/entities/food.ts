@@ -1,3 +1,4 @@
+import { OrderFood } from "./order-food";
 import { randomUUID } from "crypto";
 
 class Food {
@@ -7,7 +8,8 @@ class Food {
     public price: number,
     public description: string,
     public category: string,
-    public image: string
+    public image: string,
+    public order_food: OrderFood[] = []
   ) {}
 
   static create(
@@ -28,9 +30,14 @@ class Food {
     price: number,
     description: string,
     category: string,
-    image: string
+    image: string,
+    order_food: OrderFood[]
   ) {
-    return new Food(id, food_name, price, description, category, image);
+    return new Food(id, food_name, price, description, category, image, order_food);
+  }
+
+  public getId() {
+    return this.id;
   }
 
   public getFoodName() {

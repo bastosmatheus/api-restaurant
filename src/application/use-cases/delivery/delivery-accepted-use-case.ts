@@ -1,5 +1,6 @@
 import { Delivery } from "../../../core/entities/delivery";
 import { NotFoundError } from "../errors/not-found-error";
+import { OrderRepository } from "../../../adapters/repositories/order-repository";
 import { DeliveryRepository } from "../../../adapters/repositories/delivery-repository";
 import { DeliverymanRepository } from "../../../adapters/repositories/deliveryman-repository";
 import { Either, failure, success } from "../../../utils/either";
@@ -12,7 +13,8 @@ type DeliveryAcceptedUseCaseRequest = {
 class DeliveryAcceptedUseCase {
   constructor(
     private deliveryRepository: DeliveryRepository,
-    private deliverymanRepository: DeliverymanRepository
+    private deliverymanRepository: DeliverymanRepository,
+    private orderRepository: OrderRepository
   ) {}
 
   public async execute({
@@ -31,11 +33,14 @@ class DeliveryAcceptedUseCase {
       return failure(new NotFoundError(`Nenhuma entrega encontrada com o ID: ${id}`));
     }
 
-    deliveryExists.deliveryAccepted(id_deliveryman);
+    const dateDeliveryAccepted = deliveryExists.deliveryAccepted(id_deliveryman);
+
+    await this.orderRepository.updateStatus(deliveryExists.id_order, "Saiu para entrega");
 
     const delivery = await this.deliveryRepository.deliveryAccepted(
       deliveryExists.id,
-      deliveryExists.id_deliveryman as string
+      id_deliveryman,
+      dateDeliveryAccepted
     );
 
     return success(delivery);

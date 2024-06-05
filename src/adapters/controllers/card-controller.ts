@@ -85,10 +85,10 @@ class CardController {
     this.httpServer.on(
       "get",
       "/cards/card_number/:{card_number}",
-      async (params: { card_number: number }, body: unknown) => {
+      async (params: { card_number: string }, body: unknown) => {
         const findCardByCardNumberSchema = z.object({
           card_number: z
-            .number({
+            .string({
               required_error: "Informe o número do cartão",
               invalid_type_error: "O número do cartão deve ser um número",
             })
@@ -128,7 +128,7 @@ class CardController {
             invalid_type_error: "O nome do titular deve ser uma string",
           })
           .min(2, { message: "O nome do titular deve ter pelo menos 2 caracteres" }),
-        card_number: z.coerce
+        card_number: z
           .string({
             required_error: "Informe o número do cartão",
             invalid_type_error: "Informe um número de cartão",

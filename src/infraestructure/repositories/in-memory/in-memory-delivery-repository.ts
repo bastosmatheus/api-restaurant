@@ -38,19 +38,23 @@ class InMemoryDeliveryRepository implements DeliveryRepository {
     return delivery;
   }
 
-  public async deliveryAccepted(id: string, id_deliveryman: string): Promise<Delivery> {
+  public async deliveryAccepted(
+    id: string,
+    id_deliveryman: string,
+    dateDeliveryAccepted: Date
+  ): Promise<Delivery> {
     const deliveryIndex = this.deliveries.findIndex((delivery) => delivery.id === id);
 
     this.deliveries[deliveryIndex].id_deliveryman = id_deliveryman;
-    this.deliveries[deliveryIndex].delivery_accepted = new Date();
+    this.deliveries[deliveryIndex].delivery_accepted = dateDeliveryAccepted;
 
     return this.deliveries[deliveryIndex];
   }
 
-  public async deliveryCompleted(id: string): Promise<Delivery> {
+  public async deliveryCompleted(id: string, dateDeliveryCompleted: Date): Promise<Delivery> {
     const deliveryIndex = this.deliveries.findIndex((delivery) => delivery.id === id);
 
-    this.deliveries[deliveryIndex].delivery_completed = new Date();
+    this.deliveries[deliveryIndex].delivery_completed = dateDeliveryCompleted;
 
     return this.deliveries[deliveryIndex];
   }

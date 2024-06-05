@@ -49,7 +49,8 @@ describe("update delivery accepted", () => {
     createDeliveryUseCase = new CreateDeliveryUseCase(deliveryRepository, orderRepository);
     deliveryAcceptedUseCase = new DeliveryAcceptedUseCase(
       deliveryRepository,
-      deliverymanRepository
+      deliverymanRepository,
+      orderRepository
     );
   });
 

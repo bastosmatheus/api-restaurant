@@ -51,9 +51,10 @@ describe("update delivery completed", () => {
     createDeliveryUseCase = new CreateDeliveryUseCase(deliveryRepository, orderRepository);
     deliveryAcceptedUseCase = new DeliveryAcceptedUseCase(
       deliveryRepository,
-      deliverymanRepository
+      deliverymanRepository,
+      orderRepository
     );
-    deliveryCompletedUseCase = new DeliveryCompletedUseCase(deliveryRepository);
+    deliveryCompletedUseCase = new DeliveryCompletedUseCase(deliveryRepository, orderRepository);
   });
 
   it("should be possible to update a prop delivery completed", async () => {

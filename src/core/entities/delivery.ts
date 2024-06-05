@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { BadRequestError } from "../../application/use-cases/errors/bad-request-error";
 
 class Delivery {
   private constructor(
@@ -44,6 +45,10 @@ class Delivery {
   }
 
   public deliveryCompleted() {
+    if (!this.delivery_accepted) {
+      throw new BadRequestError("Não é possivel completar a entrega, primeiro deve aceita-la");
+    }
+
     return (this.delivery_completed = new Date());
   }
 }

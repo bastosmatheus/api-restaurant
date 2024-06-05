@@ -1,5 +1,6 @@
 import { Delivery } from "./delivery";
 import { randomUUID } from "crypto";
+import { BadRequestError } from "../../application/use-cases/errors/bad-request-error";
 
 class Deliveryman {
   private constructor(
@@ -17,7 +18,7 @@ class Deliveryman {
     const age = Deliveryman.calculateAge(new Date(birthday_date));
 
     if (age < 18) {
-      throw new Error("Cadastro proibido para menores de 18 anos");
+      throw new BadRequestError("Cadastro proibido para menores de 18 anos");
     }
 
     return new Deliveryman(id, name, email, password, birthday_date);

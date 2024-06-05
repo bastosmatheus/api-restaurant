@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { BadRequestError } from "../../application/use-cases/errors/bad-request-error";
 
 class OrderFood {
   private constructor(
@@ -12,7 +13,7 @@ class OrderFood {
     const id = randomUUID();
 
     if (quantity < 1) {
-      throw new Error("Quantidade deve ser maior que 0");
+      throw new BadRequestError("Quantidade deve ser maior que 0");
     }
 
     return new OrderFood(id, id_order, id_food, quantity);

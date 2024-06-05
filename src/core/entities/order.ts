@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { OrderFood } from "./order-food";
+import { BadRequestError } from "../../application/use-cases/errors/bad-request-error";
 
 type StatusOrder =
   | "Aguardando pagamento"
@@ -24,11 +25,11 @@ class Order {
     const id = randomUUID();
 
     if (id_pix === null && id_card === null) {
-      throw new Error("Escolha alguma forma de pagamento: pix ou cartão");
+      throw new BadRequestError("Escolha alguma forma de pagamento: pix ou cartão");
     }
 
     if (id_pix !== null && id_card !== null) {
-      throw new Error("Escolha apenas uma forma de pagamento: pix ou cartão");
+      throw new BadRequestError("Escolha apenas uma forma de pagamento: pix ou cartão");
     }
 
     return new Order(id, id_user, id_pix, id_card);

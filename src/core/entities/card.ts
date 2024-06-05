@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { BadRequestError } from "../../application/use-cases/errors/bad-request-error";
 
 class Card {
   private constructor(
@@ -20,7 +21,7 @@ class Card {
     const validDate = Card.calculateDate(new Date(expiration_date));
 
     if (!validDate) {
-      throw new Error("O cartão está expirado");
+      throw new BadRequestError("O cartão está expirado");
     }
 
     return new Card(id, card_holder_name, card_number, expiration_date, id_user);

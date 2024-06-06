@@ -251,7 +251,7 @@ class DeliverymanController {
 
     this.httpServer.on(
       "delete",
-      "/deliveryman/:{id}",
+      "/deliverymans/:{id}",
       async (params: { id: string }, body: unknown) => {
         const deleteDeliverymanSchema = z.object({
           id: z.string().uuid({

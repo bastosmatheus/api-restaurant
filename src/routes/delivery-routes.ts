@@ -12,6 +12,7 @@ import {
   DeliveryCompletedUseCase,
   FindAllDeliveriesUseCase,
   FindDeliveriesByDeliverymanUseCase,
+  FindDeliveriesByNotAcceptedUseCase,
   FindDeliveryByIdUseCase,
 } from "../application/use-cases/delivery/index";
 import { DeliveryController } from "../adapters/controllers/delivery-controller";
@@ -32,6 +33,9 @@ class DeliveryRoutes {
 
   public routes() {
     const findAllDeliveriesUseCase = new FindAllDeliveriesUseCase(this.deliveryRepository);
+    const findDeliveriesByNotAcceptedUseCase = new FindDeliveriesByNotAcceptedUseCase(
+      this.deliveryRepository
+    );
     const findDeliveriesByDeliverymanUseCase = new FindDeliveriesByDeliverymanUseCase(
       this.deliveryRepository
     );
@@ -53,6 +57,7 @@ class DeliveryRoutes {
     return new DeliveryController(
       this.httpServer,
       findAllDeliveriesUseCase,
+      findDeliveriesByNotAcceptedUseCase,
       findDeliveriesByDeliverymanUseCase,
       findDeliveryByIdUseCase,
       createDeliveryUseCase,

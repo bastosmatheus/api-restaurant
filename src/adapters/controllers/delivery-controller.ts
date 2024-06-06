@@ -1,17 +1,21 @@
 import { z } from "zod";
 import { Delivery } from "../../core/entities/delivery";
 import { HttpServer } from "../../infraestructure/http/http-server";
-import { CreateDeliveryUseCase } from "../../application/use-cases/delivery/create-delivery-use-case";
-import { FindDeliveryByIdUseCase } from "../../application/use-cases/delivery/find-delivery-by-id-use-case";
-import { DeliveryAcceptedUseCase } from "../../application/use-cases/delivery/delivery-accepted-use-case";
-import { DeliveryCompletedUseCase } from "../../application/use-cases/delivery/delivery-completed-use-case";
-import { FindAllDeliveriesUseCase } from "../../application/use-cases/delivery/find-all-deliveries-use-case";
-import { FindDeliveriesByDeliverymanUseCase } from "../../application/use-cases/delivery/find-deliveries-by-deliveryman-use-case";
+import {
+  CreateDeliveryUseCase,
+  DeliveryAcceptedUseCase,
+  DeliveryCompletedUseCase,
+  FindAllDeliveriesUseCase,
+  FindDeliveriesByDeliverymanUseCase,
+  FindDeliveriesByNotAcceptedUseCase,
+  FindDeliveryByIdUseCase,
+} from "../../application/use-cases/delivery";
 
 class DeliveryController {
   constructor(
     private readonly httpServer: HttpServer,
     private readonly findAllDeliveriesUseCase: FindAllDeliveriesUseCase,
+    private readonly findDeliveriesByNotAcceptedUseCase: FindDeliveriesByNotAcceptedUseCase,
     private readonly findDeliveriesByDeliverymanUseCase: FindDeliveriesByDeliverymanUseCase,
     private readonly findDeliveryByIdUseCase: FindDeliveryByIdUseCase,
     private readonly createDeliveryUseCase: CreateDeliveryUseCase,
@@ -28,17 +32,29 @@ class DeliveryController {
       };
     });
 
+    this.httpServer.on("get", "/deliveries/not_accepted", async () => {
+      const deliveries = await this.findDeliveriesByNotAcceptedUseCase.execute();
+
+      return {
+        type: "OK",
+        statusCode: 200,
+        deliveries,
+      };
+    });
+
     this.httpServer.on(
       "get",
       "/deliveries/deliveryman/:{id_deliveryman}",
-      async (params: { id_deliveryman: string }, body: unknown) => {
+      async (params: { id_deliveryman: string | null }, body: unknown) => {
         const findDeliveriesByDeliverymanSchema = z.object({
           id_deliveryman: z.string().uuid({
             message: "O ID deve ser um uuid",
           }),
         });
 
-        const { id_deliveryman } = params;
+        let { id_deliveryman } = params;
+
+        id_deliveryman === "null" ? (id_deliveryman = null) : id_deliveryman;
 
         findDeliveriesByDeliverymanSchema.parse({ id_deliveryman });
 
@@ -120,7 +136,7 @@ class DeliveryController {
 
     this.httpServer.on(
       "patch",
-      "/deliveries/${id}/deliveryman/${id_deliveryman}",
+      "/deliveries/:{id}/deliveryman/:{id_deliveryman}",
       async (params: { id: string; id_deliveryman: string }, body: unknown) => {
         const deliveryAcceptedSchema = z.object({
           id: z.string().uuid({
@@ -157,7 +173,7 @@ class DeliveryController {
 
     this.httpServer.on(
       "patch",
-      "/deliveries/${id}",
+      "/deliveries/:{id}",
       async (params: { id: string }, body: unknown) => {
         const deliveryCompletedSchema = z.object({
           id: z.string().uuid({

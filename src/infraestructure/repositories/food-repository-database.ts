@@ -6,21 +6,95 @@ class FoodRepositoryDatabase implements FoodRepository {
   constructor(private databaseConnection: DatabaseConnection) {}
 
   public async findAll(): Promise<Food[]> {
-    const foods = await this.databaseConnection.query(`SELECT * FROM foods`, []);
+    const foods = await this.databaseConnection.query(
+      `
+      SELECT 
+      foods.id,
+      foods.food_name,
+      foods.price,
+      foods.description,
+      foods.category,
+      foods.image,
+      COALESCE(
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+              'id', orders_foods.id,
+              'id_order', orders_foods.id_order,
+              'id_food', orders_foods.id_food
+          )
+      ) FILTER (WHERE orders_foods.id IS NOT NULL), '[]' ) AS orders_foods
+      FROM 
+        foods
+      LEFT JOIN
+        orders_foods ON foods.id = orders_foods.id_food
+      GROUP BY
+        foods.id
+      `,
+      []
+    );
 
     return foods;
   }
 
   public async findByCategory(category: string): Promise<Food[]> {
-    const foods = await this.databaseConnection.query(`SELECT * FROM foods WHERE category = $1`, [
-      category,
-    ]);
+    const foods = await this.databaseConnection.query(
+      `
+      SELECT 
+      foods.id,
+      foods.food_name,
+      foods.price,
+      foods.description,
+      foods.category,
+      foods.image,
+      COALESCE(
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+              'id', orders_foods.id,
+              'id_order', orders_foods.id_order,
+              'id_food', orders_foods.id_food
+          )
+      ) FILTER (WHERE orders_foods.id IS NOT NULL), '[]' ) AS orders_foods
+      FROM 
+        foods
+      LEFT JOIN
+        orders_foods ON foods.id = orders_foods.id_food
+      WHERE foods.category = $1
+      GROUP BY
+        foods.id`,
+      [category]
+    );
 
     return foods;
   }
 
   public async findById(id: string): Promise<Food | null> {
-    const [food] = await this.databaseConnection.query(`SELECT * FROM foods WHERE id = $1`, [id]);
+    const [food] = await this.databaseConnection.query(
+      `
+      SELECT 
+      foods.id,
+      foods.food_name,
+      foods.price,
+      foods.description,
+      foods.category,
+      foods.image,
+      COALESCE(
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+              'id', orders_foods.id,
+              'id_order', orders_foods.id_order,
+              'id_food', orders_foods.id_food
+          )
+      ) FILTER (WHERE orders_foods.id IS NOT NULL), '[]' ) AS orders_foods
+      FROM 
+        foods
+      LEFT JOIN
+        orders_foods ON foods.id = orders_foods.id_food
+      WHERE foods.id = $1
+      GROUP BY
+        foods.id
+      `,
+      [id]
+    );
 
     if (!food) {
       return null;
@@ -32,7 +106,8 @@ class FoodRepositoryDatabase implements FoodRepository {
       food.price,
       food.description,
       food.category,
-      food.image
+      food.image,
+      food.orders_foods
     );
   }
 
@@ -51,7 +126,8 @@ class FoodRepositoryDatabase implements FoodRepository {
       food.price,
       food.description,
       food.category,
-      food.image
+      food.image,
+      food.orders_foods
     );
   }
 

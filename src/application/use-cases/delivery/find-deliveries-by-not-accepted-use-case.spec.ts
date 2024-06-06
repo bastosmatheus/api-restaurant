@@ -9,13 +9,9 @@ import { InMemoryCardRepository } from "../../../infraestructure/repositories/in
 import { InMemoryOrderRepository } from "../../../infraestructure/repositories/in-memory/in-memory-order-repository";
 import { InMemoryDeliveryRepository } from "../../../infraestructure/repositories/in-memory/in-memory-delivery-repository";
 import { describe, it, beforeEach, expect } from "vitest";
-import { FindDeliveriesByDeliverymanUseCase } from "./find-deliveries-by-deliveryman-use-case";
-import { CreateDeliverymanUseCase } from "../deliveryman";
-import { InMemoryDeliverymanRepository } from "../../../infraestructure/repositories/in-memory/in-memory-deliveryman-repository";
-import { DeliveryAcceptedUseCase } from "./delivery-accepted-use-case";
+import { FindDeliveriesByNotAcceptedUseCase } from "./find-deliveries-by-not-accepted-use-case";
 
 let deliveryRepository: InMemoryDeliveryRepository;
-let deliverymanRepository: InMemoryDeliverymanRepository;
 let orderRepository: InMemoryOrderRepository;
 let userRepository: InMemoryUserRepository;
 let pixRepository: InMemoryPixRepository;
@@ -24,15 +20,12 @@ let createOrderUseCase: CreateOrderUseCase;
 let createUserUseCase: CreateUserUseCase;
 let createPixUseCase: CreatePixUseCase;
 let createDeliveryUseCase: CreateDeliveryUseCase;
-let createDeliverymanUseCase: CreateDeliverymanUseCase;
-let deliveryAcceptedUseCase: DeliveryAcceptedUseCase;
-let findDeliveriesByDeliverymanUseCase: FindDeliveriesByDeliverymanUseCase;
+let findDeliveriesByNotAcceptedUseCase: FindDeliveriesByNotAcceptedUseCase;
 let bcryptAdapter: BcryptAdapter;
 
-describe("get deliveries by deliveryman", () => {
+describe("get deliveries by deliveries not accepted", () => {
   beforeEach(() => {
     deliveryRepository = new InMemoryDeliveryRepository();
-    deliverymanRepository = new InMemoryDeliverymanRepository();
     orderRepository = new InMemoryOrderRepository();
     userRepository = new InMemoryUserRepository();
     pixRepository = new InMemoryPixRepository();
@@ -46,17 +39,11 @@ describe("get deliveries by deliveryman", () => {
       pixRepository,
       cardRepository
     );
-    createDeliverymanUseCase = new CreateDeliverymanUseCase(deliverymanRepository, bcryptAdapter);
     createDeliveryUseCase = new CreateDeliveryUseCase(deliveryRepository, orderRepository);
-    deliveryAcceptedUseCase = new DeliveryAcceptedUseCase(
-      deliveryRepository,
-      deliverymanRepository,
-      orderRepository
-    );
-    findDeliveriesByDeliverymanUseCase = new FindDeliveriesByDeliverymanUseCase(deliveryRepository);
+    findDeliveriesByNotAcceptedUseCase = new FindDeliveriesByNotAcceptedUseCase(deliveryRepository);
   });
 
-  it("should be possible to get deliveries by deliveryman", async () => {
+  it("should be possible to get deliveries by deliveries not accepted", async () => {
     const user = await createUserUseCase.execute({
       name: "Matheus",
       email: "matheus@gmail.com",
@@ -83,27 +70,11 @@ describe("get deliveries by deliveryman", () => {
 
     const id_order = order.value.id;
 
-    const deliveryman = await createDeliverymanUseCase.execute({
-      name: "Matheus",
-      email: "matheus@gmail.com",
-      password: "123456",
-      birthday_date: new Date("2003-12-11"),
-    });
+    await createDeliveryUseCase.execute({ id_order });
+    await createDeliveryUseCase.execute({ id_order });
 
-    if (deliveryman.isFailure()) return;
+    const deliveries = await findDeliveriesByNotAcceptedUseCase.execute();
 
-    const id_deliveryman = deliveryman.value.id;
-
-    const deliveryCreated = await createDeliveryUseCase.execute({ id_order });
-
-    if (deliveryCreated.isFailure()) return;
-
-    const id = deliveryCreated.value.id;
-
-    await deliveryAcceptedUseCase.execute({ id, id_deliveryman });
-
-    const deliveries = await findDeliveriesByDeliverymanUseCase.execute({ id_deliveryman });
-
-    expect(deliveries.length).toBeGreaterThanOrEqual(1);
+    expect(deliveries.length).toBeGreaterThanOrEqual(2);
   });
 });

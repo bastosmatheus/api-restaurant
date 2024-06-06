@@ -13,20 +13,51 @@ class UserRepositoryDatabase implements UserRepository {
       users.name,
       users.email,
       COALESCE(
-        JSON_AGG(
-          JSON_BUILD_OBJECT(
-              'id', cards.id,
-              'card_holder_name', cards.card_holder_name,
-              'card_number', cards.card_number,
-              'expiration_date', cards.expiration_date
-          )
-      ) FILTER (WHERE cards.id IS NOT NULL), '[]' ) AS cards
-      FROM
-        users
-      LEFT JOIN
-        cards ON users.id = cards.id_user
-      GROUP BY
-        users.id;
+          (
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                  'id', cards.id,
+                  'card_holder_name', cards.card_holder_name,
+                  'card_number', cards.card_number,
+                  'expiration_date', cards.expiration_date
+                )
+            )
+            FROM cards
+            WHERE cards.id_user = users.id
+        ), '[]'
+      ) AS cards,
+      COALESCE(
+          (
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                  'id', pixs.id,
+                  'code', pixs.code,
+                  'time_pix_generated', pixs.time_pix_generated,
+                  'status', pixs.status
+                )
+            )
+            FROM pixs
+            WHERE pixs.id_user = users.id
+        ), '[]'
+      ) AS pixs,
+      COALESCE(
+          (
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                  'id', orders.id,
+                  'id_user', orders.id_user,
+                  'id_pix', orders.id_pix,
+                  'id_card', orders.id_card,
+                  'amount', orders.amount,
+                  'status', orders.status
+                )
+            )
+            FROM orders
+            WHERE orders.id_user = users.id
+        ), '[]'
+    ) AS orders
+    FROM
+        users;
       `,
       []
     );
@@ -42,21 +73,52 @@ class UserRepositoryDatabase implements UserRepository {
       users.name,
       users.email,
       COALESCE(
-        JSON_AGG(
-          JSON_BUILD_OBJECT(
-              'id', cards.id,
-              'card_holder_name', cards.card_holder_name,
-              'card_number', cards.card_number,
-              'expiration_date', cards.expiration_date
-          )
-      ) FILTER (WHERE cards.id IS NOT NULL), '[]' ) AS cards
+          (
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                  'id', cards.id,
+                  'card_holder_name', cards.card_holder_name,
+                  'card_number', cards.card_number,
+                  'expiration_date', cards.expiration_date
+                )
+            )
+            FROM cards
+            WHERE cards.id_user = users.id
+        ), '[]'
+      ) AS cards,
+      COALESCE(
+          (
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                  'id', pixs.id,
+                  'code', pixs.code,
+                  'time_pix_generated', pixs.time_pix_generated,
+                  'status', pixs.status
+                )
+            )
+            FROM pixs
+            WHERE pixs.id_user = users.id
+        ), '[]'
+      ) AS pixs,
+      COALESCE(
+          (
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                  'id', orders.id,
+                  'id_user', orders.id_user,
+                  'id_pix', orders.id_pix,
+                  'id_card', orders.id_card,
+                  'amount', orders.amount,
+                  'status', orders.status
+                )
+            )
+            FROM orders
+            WHERE orders.id_user = users.id
+        ), '[]'
+      ) AS orders
       FROM
-        users
-      LEFT JOIN
-        cards ON users.id = cards.id_user
+        users;
       WHERE users.id = $1
-      GROUP BY
-        users.id;
       `,
       [id]
     );
@@ -84,21 +146,52 @@ class UserRepositoryDatabase implements UserRepository {
       users.name,
       users.email,
       COALESCE(
-        JSON_AGG(
-          JSON_BUILD_OBJECT(
-              'id', cards.id,
-              'card_holder_name', cards.card_holder_name,
-              'card_number', cards.card_number,
-              'expiration_date', cards.expiration_date
-          )
-      ) FILTER (WHERE cards.id IS NOT NULL), '[]' ) AS cards
+          (
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                  'id', cards.id,
+                  'card_holder_name', cards.card_holder_name,
+                  'card_number', cards.card_number,
+                  'expiration_date', cards.expiration_date
+                )
+            )
+            FROM cards
+            WHERE cards.id_user = users.id
+        ), '[]'
+      ) AS cards,
+      COALESCE(
+          (
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                  'id', pixs.id,
+                  'code', pixs.code,
+                  'time_pix_generated', pixs.time_pix_generated,
+                  'status', pixs.status
+                )
+            )
+            FROM pixs
+            WHERE pixs.id_user = users.id
+        ), '[]'
+      ) AS pixs,
+      COALESCE(
+          (
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                  'id', orders.id,
+                  'id_user', orders.id_user,
+                  'id_pix', orders.id_pix,
+                  'id_card', orders.id_card,
+                  'amount', orders.amount,
+                  'status', orders.status
+                )
+            )
+            FROM orders
+            WHERE orders.id_user = users.id
+        ), '[]'
+      ) AS orders
       FROM
-        users
-      LEFT JOIN
-        cards ON users.id = cards.id_user
+        users;
       WHERE users.email = $1
-      GROUP BY
-        users.id
       `,
       [email]
     );

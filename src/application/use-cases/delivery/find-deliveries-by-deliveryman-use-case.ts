@@ -1,7 +1,7 @@
 import { DeliveryRepository } from "../../../adapters/repositories/delivery-repository";
 
 type FindDeliveriesByDeliverymanUseCaseRequest = {
-  id_deliveryman: string | null;
+  id_deliveryman: string;
 };
 
 class FindDeliveriesByDeliverymanUseCase {

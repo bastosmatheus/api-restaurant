@@ -1,5 +1,5 @@
-import { DeliveryRepository } from "../../adapters/repositories/delivery-repository";
 import { Delivery } from "../../core/entities/delivery";
+import { DeliveryRepository } from "../../adapters/repositories/delivery-repository";
 import { DatabaseConnection } from "../database/database-connection";
 
 class DeliveryRepositoryDatabase implements DeliveryRepository {
@@ -11,10 +11,19 @@ class DeliveryRepositoryDatabase implements DeliveryRepository {
     return deliveries;
   }
 
-  public async findByDeliveryman(id_deliveryman: string | null): Promise<Delivery[]> {
+  public async findByDeliveryman(id_deliveryman: string): Promise<Delivery[]> {
     const deliveries = await this.databaseConnection.query(
       `SELECT * FROM deliveries WHERE id_deliveryman = $1`,
       [id_deliveryman]
+    );
+
+    return deliveries;
+  }
+
+  public async findByDeliveriesNotAceppted(): Promise<Delivery[]> {
+    const deliveries = await this.databaseConnection.query(
+      `SELECT * FROM deliveries WHERE id_deliveryman IS NULL`,
+      []
     );
 
     return deliveries;

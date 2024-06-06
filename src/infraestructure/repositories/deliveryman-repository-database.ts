@@ -12,9 +12,20 @@ class DeliverymanRepositoryDatabase implements DeliverymanRepository {
       deliverymans.id,
       deliverymans.name,
       deliverymans.email,
-      deliverymans.birthday_date
+      deliverymans.birthday_date,
+      COALESCE(
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'id', deliveries.id,
+            'id_order', deliveries.id_order,
+            'delivery_accepted', deliveries.delivery_accepted,
+            'delivery_completed', deliveries.delivery_completed
+          )
+        ) FILTER (WHERE deliveries.id IS NOT NULL), '[]' ) AS deliveries
       FROM 
         deliverymans
+      LEFT JOIN
+        deliveries ON deliverymans.id = deliveries.id_deliveryman
       GROUP BY
         deliverymans.id
       `,
@@ -31,9 +42,20 @@ class DeliverymanRepositoryDatabase implements DeliverymanRepository {
       deliverymans.id,
       deliverymans.name,
       deliverymans.email,
-      deliverymans.birthday_date
+      deliverymans.birthday_date,
+      COALESCE(
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'id', deliveries.id,
+            'id_order', deliveries.id_order,
+            'delivery_accepted', deliveries.delivery_accepted,
+            'delivery_completed', deliveries.delivery_completed
+          )
+        ) FILTER (WHERE deliveries.id IS NOT NULL), '[]' ) AS deliveries
       FROM 
         deliverymans
+      LEFT JOIN
+        deliveries ON deliverymans.id = deliveries.id_deliveryman
       WHERE deliverymans.id = $1
       GROUP BY
         deliverymans.id
@@ -62,9 +84,20 @@ class DeliverymanRepositoryDatabase implements DeliverymanRepository {
       deliverymans.id,
       deliverymans.name,
       deliverymans.email,
-      deliverymans.birthday_date
+      deliverymans.birthday_date,
+      COALESCE(
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'id', deliveries.id,
+            'id_order', deliveries.id_order,
+            'delivery_accepted', deliveries.delivery_accepted,
+            'delivery_completed', deliveries.delivery_completed
+          )
+        ) FILTER (WHERE deliveries.id IS NOT NULL), '[]' ) AS deliveries
       FROM 
         deliverymans
+      LEFT JOIN
+        deliveries ON deliverymans.id = deliveries.id_deliveryman
       WHERE deliverymans.email = $1
       GROUP BY
         deliverymans.id
@@ -96,7 +129,7 @@ class DeliverymanRepositoryDatabase implements DeliverymanRepository {
     const [deliveryman] = await this.databaseConnection.query(
       `
       INSERT INTO deliverymans (id, name, email, password, birthday_date)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *`,
       [id, name, email, password, birthday_date]
     );

@@ -16,6 +16,12 @@ class InMemoryDeliveryRepository implements DeliveryRepository {
     return deliveries;
   }
 
+  public async findByDeliveriesNotAceppted(): Promise<Delivery[]> {
+    const deliveries = this.deliveries.filter((delivery) => delivery.id_deliveryman === null);
+
+    return deliveries;
+  }
+
   public async findById(id: string): Promise<Delivery | null> {
     const delivery = this.deliveries.find((delivery) => delivery.id === id);
 

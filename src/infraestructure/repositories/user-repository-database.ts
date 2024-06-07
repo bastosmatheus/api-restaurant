@@ -57,7 +57,7 @@ class UserRepositoryDatabase implements UserRepository {
         ), '[]'
     ) AS orders
     FROM
-        users;
+        users
       `,
       []
     );
@@ -72,6 +72,7 @@ class UserRepositoryDatabase implements UserRepository {
       users.id,
       users.name,
       users.email,
+      users.password,
       COALESCE(
           (
             SELECT JSON_AGG(
@@ -117,7 +118,7 @@ class UserRepositoryDatabase implements UserRepository {
         ), '[]'
       ) AS orders
       FROM
-        users;
+        users
       WHERE users.id = $1
       `,
       [id]
@@ -145,6 +146,7 @@ class UserRepositoryDatabase implements UserRepository {
       users.id,
       users.name,
       users.email,
+      users.password,
       COALESCE(
           (
             SELECT JSON_AGG(
@@ -190,7 +192,7 @@ class UserRepositoryDatabase implements UserRepository {
         ), '[]'
       ) AS orders
       FROM
-        users;
+        users
       WHERE users.email = $1
       `,
       [email]

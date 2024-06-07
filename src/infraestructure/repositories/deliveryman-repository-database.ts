@@ -42,6 +42,7 @@ class DeliverymanRepositoryDatabase implements DeliverymanRepository {
       deliverymans.id,
       deliverymans.name,
       deliverymans.email,
+      deliverymans.password,
       deliverymans.birthday_date,
       COALESCE(
         JSON_AGG(
@@ -84,6 +85,7 @@ class DeliverymanRepositoryDatabase implements DeliverymanRepository {
       deliverymans.id,
       deliverymans.name,
       deliverymans.email,
+      deliverymans.password,
       deliverymans.birthday_date,
       COALESCE(
         JSON_AGG(

@@ -1,8 +1,8 @@
 import { User } from "../../../core/entities/user";
 import { NotFoundError } from "../errors/not-found-error";
 import { UserRepository } from "../../../adapters/repositories/user-repository";
+import { HasherAndCompare } from "../../../infraestructure/cryptography/cryptography";
 import { Either, failure, success } from "../../../utils/either";
-import { Hasher } from "../../../infraestructure/cryptography/cryptography";
 
 type UpdatePasswordUserUseCaseRequest = {
   id: string;
@@ -12,7 +12,7 @@ type UpdatePasswordUserUseCaseRequest = {
 class UpdatePasswordUserUseCase {
   constructor(
     private userRepository: UserRepository,
-    private hasher: Hasher
+    private hasher: HasherAndCompare
   ) {}
 
   public async execute({

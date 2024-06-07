@@ -39,6 +39,10 @@ class Delivery {
   }
 
   public deliveryAccepted(id_deliveryman: string) {
+    if (this.id_deliveryman) {
+      throw new BadRequestError("Essa entrega já foi aceita");
+    }
+
     this.id_deliveryman = id_deliveryman;
 
     return (this.delivery_accepted = new Date());

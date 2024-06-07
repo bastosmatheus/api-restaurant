@@ -8,6 +8,7 @@ import { FindAllUsersUseCase } from "../../application/use-cases/user/find-all-u
 import { FindUserByIdUseCase } from "../../application/use-cases/user/find-user-by-id-use-case";
 import { FindUserByEmailUseCase } from "../../application/use-cases/user/find-user-by-email-use-case";
 import { UpdatePasswordUserUseCase } from "../../application/use-cases/user/update-password-user-use-case";
+import { LoginUserUseCase } from "../../application/use-cases/user/login-user-use-case";
 
 class UserController {
   constructor(
@@ -18,7 +19,8 @@ class UserController {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly updatePasswordUserUseCase: UpdatePasswordUserUseCase,
-    private readonly deleteUserUseCase: DeleteUserUseCase
+    private readonly deleteUserUseCase: DeleteUserUseCase,
+    private readonly loginUserUseCase: LoginUserUseCase
   ) {
     this.httpServer.on("get", "/users", async () => {
       const users = await this.findAllUsersUseCase.execute();
@@ -139,6 +141,43 @@ class UserController {
         user: {
           ...user.value,
         },
+      };
+    });
+
+    this.httpServer.on("post", "/users/login", async (params: unknown, body: User) => {
+      const loginUserSchema = z.object({
+        email: z
+          .string({
+            invalid_type_error: "O email deve ser uma string",
+            required_error: "Informe o email",
+          })
+          .email({ message: "Email inválido" }),
+        password: z
+          .string({
+            required_error: "Informe a senha",
+            invalid_type_error: "A senha deve ser uma string",
+          })
+          .min(5, { message: "A senha deve ter no mínimo 5 caracteres" }),
+      });
+
+      const { email, password } = body;
+
+      loginUserSchema.parse({ email, password });
+
+      const token = await this.loginUserUseCase.execute({ email, password });
+
+      if (token.isFailure()) {
+        return {
+          type: token.value.type,
+          statusCode: token.value.statusCode,
+          message: token.value.message,
+        };
+      }
+
+      return {
+        type: "OK",
+        statusCode: 200,
+        token: token.value,
       };
     });
 

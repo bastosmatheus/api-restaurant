@@ -1,7 +1,7 @@
 import { User } from "../../../core/entities/user";
-import { Hasher } from "../../../infraestructure/cryptography/cryptography";
 import { ConflictError } from "../errors/conflict-error";
 import { UserRepository } from "../../../adapters/repositories/user-repository";
+import { HasherAndCompare } from "../../../infraestructure/cryptography/cryptography";
 import { Either, failure, success } from "../../../utils/either";
 
 type CreateUserUseCaseRequest = {
@@ -13,7 +13,7 @@ type CreateUserUseCaseRequest = {
 class CreateUserUseCase {
   constructor(
     private userRepository: UserRepository,
-    private hasher: Hasher
+    private hasher: HasherAndCompare
   ) {}
 
   public async execute({

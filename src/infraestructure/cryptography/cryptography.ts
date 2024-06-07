@@ -1,14 +1,11 @@
 import bcrypt from "bcrypt";
 
-interface Hasher {
+interface HasherAndCompare {
   hash(plaintext: string): Promise<string>;
-}
-
-interface Compare {
   compare(password: string, salt: string): Promise<boolean>;
 }
 
-class BcryptAdapter implements Hasher, Compare {
+class BcryptAdapter implements HasherAndCompare {
   public readonly bcrypt: typeof bcrypt;
 
   constructor() {
@@ -28,4 +25,4 @@ class BcryptAdapter implements Hasher, Compare {
   }
 }
 
-export { BcryptAdapter, Hasher, Compare };
+export { BcryptAdapter, HasherAndCompare };

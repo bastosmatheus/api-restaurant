@@ -1,7 +1,7 @@
-import { Hasher } from "../infraestructure/cryptography/cryptography";
 import { HttpServer } from "../infraestructure/http/http-server";
 import { UserRepository } from "../adapters/repositories/user-repository";
 import { UserController } from "../adapters/controllers/user-controller";
+import { HasherAndCompare } from "../infraestructure/cryptography/cryptography";
 import { DatabaseConnection } from "../infraestructure/database/database-connection";
 import { UserRepositoryDatabase } from "../infraestructure/repositories/user-repository-database";
 import {
@@ -13,6 +13,8 @@ import {
   UpdatePasswordUserUseCase,
   UpdateUserUseCase,
 } from "../application/use-cases/user/index";
+import { LoginUserUseCase } from "../application/use-cases/user/login-user-use-case";
+import { Token } from "../infraestructure/token/token";
 
 class UserRoutes {
   private readonly userRepository: UserRepository;
@@ -20,7 +22,8 @@ class UserRoutes {
   constructor(
     private readonly connection: DatabaseConnection,
     private readonly httpServer: HttpServer,
-    private readonly cryptography: Hasher
+    private readonly cryptography: HasherAndCompare,
+    private readonly token: Token
   ) {
     this.userRepository = new UserRepositoryDatabase(this.connection);
   }
@@ -36,6 +39,11 @@ class UserRoutes {
       this.cryptography
     );
     const deleteUserUseCase = new DeleteUserUseCase(this.userRepository);
+    const loginUserUseCase = new LoginUserUseCase(
+      this.userRepository,
+      this.cryptography,
+      this.token
+    );
 
     return new UserController(
       this.httpServer,
@@ -45,7 +53,8 @@ class UserRoutes {
       createUserUseCase,
       updateUserUseCase,
       updatePasswordUserUseCase,
-      deleteUserUseCase
+      deleteUserUseCase,
+      loginUserUseCase
     );
   }
 }

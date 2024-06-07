@@ -1,6 +1,6 @@
-import { Hasher } from "../../../infraestructure/cryptography/cryptography";
 import { Deliveryman } from "../../../core/entities/deliveryman";
 import { NotFoundError } from "../errors/not-found-error";
+import { HasherAndCompare } from "../../../infraestructure/cryptography/cryptography";
 import { DeliverymanRepository } from "../../../adapters/repositories/deliveryman-repository";
 import { Either, failure, success } from "../../../utils/either";
 
@@ -12,7 +12,7 @@ type UpdatePasswordDeliverymanUseCaseRequest = {
 class UpdatePasswordDeliverymanUseCase {
   constructor(
     private deliverymanRepository: DeliverymanRepository,
-    private hasher: Hasher
+    private hasher: HasherAndCompare
   ) {}
 
   public async execute({

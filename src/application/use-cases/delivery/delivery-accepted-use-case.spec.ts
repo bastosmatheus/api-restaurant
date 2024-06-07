@@ -187,4 +187,55 @@ describe("update delivery accepted", () => {
     expect(delivery.isFailure()).toBe(true);
     expect(delivery.value).toBeInstanceOf(NotFoundError);
   });
+
+  it("should not be possible to update a prop delivery accepted if the delivery has already been accepted", async () => {
+    const user = await createUserUseCase.execute({
+      name: "Matheus",
+      email: "matheus@gmail.com",
+      password: "12345",
+    });
+
+    if (user.isFailure()) return;
+
+    const id_user = user.value.id;
+
+    const pix = await createPixUseCase.execute({ id_user });
+
+    if (pix.isFailure()) return;
+
+    const id_pix = pix.value.id;
+
+    const order = await createOrderUseCase.execute({
+      id_user,
+      id_pix,
+      id_card: null,
+    });
+
+    if (order.isFailure()) return;
+
+    const id_order = order.value.id;
+
+    const deliveryCreated = await createDeliveryUseCase.execute({ id_order });
+
+    if (deliveryCreated.isFailure()) return;
+
+    const id = deliveryCreated.value.id;
+
+    const deliveryman = await createDeliverymanUseCase.execute({
+      name: "Matheus 2",
+      email: "matheus@gmail.com",
+      password: "102030",
+      birthday_date: new Date("2002-09-10"),
+    });
+
+    if (deliveryman.isFailure()) return;
+
+    const id_deliveryman = deliveryman.value.id;
+
+    await deliveryAcceptedUseCase.execute({ id, id_deliveryman });
+
+    await expect(async () => {
+      await deliveryAcceptedUseCase.execute({ id, id_deliveryman });
+    }).rejects.toThrowError("Essa entrega já foi aceita");
+  });
 });

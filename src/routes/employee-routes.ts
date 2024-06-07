@@ -1,8 +1,10 @@
-import { Hasher } from "../infraestructure/cryptography/cryptography";
+import { Token } from "../infraestructure/token/token";
 import { HttpServer } from "../infraestructure/http/http-server";
+import { HasherAndCompare } from "../infraestructure/cryptography/cryptography";
 import { DatabaseConnection } from "../infraestructure/database/database-connection";
 import { EmployeeController } from "../adapters/controllers/employee-controller";
 import { EmployeeRepositoryDatabase } from "../infraestructure/repositories/employee-repository-database";
+import { LoginEmployeeUseCase } from "../application/use-cases/employee/login-employee-use-case";
 import {
   FindAllEmployeesUseCase,
   FindEmployeesByRoleUseCase,
@@ -20,7 +22,8 @@ class EmployeeRoutes {
   constructor(
     private readonly connection: DatabaseConnection,
     private readonly httpServer: HttpServer,
-    private readonly cryptography: Hasher
+    private readonly cryptography: HasherAndCompare,
+    private readonly token: Token
   ) {
     this.employeeRepository = new EmployeeRepositoryDatabase(this.connection);
   }
@@ -40,6 +43,11 @@ class EmployeeRoutes {
     );
     const updateEmployeeUseCase = new UpdateEmployeeUseCase(this.employeeRepository);
     const deleteEmployeeUseCase = new DeleteEmployeeUseCase(this.employeeRepository);
+    const loginEmployeeUseCase = new LoginEmployeeUseCase(
+      this.employeeRepository,
+      this.cryptography,
+      this.token
+    );
 
     return new EmployeeController(
       this.httpServer,
@@ -50,7 +58,8 @@ class EmployeeRoutes {
       createEmployeeUseCase,
       updateEmployeeUseCase,
       updatePasswordEmployeeUseCase,
-      deleteEmployeeUseCase
+      deleteEmployeeUseCase,
+      loginEmployeeUseCase
     );
   }
 }

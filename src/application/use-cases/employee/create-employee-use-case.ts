@@ -1,4 +1,4 @@
-import { Hasher } from "../../../infraestructure/cryptography/cryptography";
+import { HasherAndCompare } from "../../../infraestructure/cryptography/cryptography";
 import { ConflictError } from "../errors/conflict-error";
 import { EmployeeRepository } from "../../../adapters/repositories/employee-repository";
 import { Employee, EmployeeRole } from "../../../core/entities/employee";
@@ -14,7 +14,7 @@ type CreateEmployeeUseCaseRequest = {
 class CreateEmployeeUseCase {
   constructor(
     private employeeRepository: EmployeeRepository,
-    private hasher: Hasher
+    private hasher: HasherAndCompare
   ) {}
 
   public async execute({

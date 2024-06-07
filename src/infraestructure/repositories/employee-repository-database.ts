@@ -25,7 +25,7 @@ class EmployeeRepositoryDatabase implements EmployeeRepository {
 
   public async findById(id: string): Promise<Employee | null> {
     const [employee] = await this.databaseConnection.query(
-      `SELECT employees.id, employees.name, employees.email, employees.employee_role FROM employees WHERE id = $1`,
+      `SELECT employees.id, employees.name, employees.email, employees.password, employees.employee_role FROM employees WHERE id = $1`,
       [id]
     );
 
@@ -44,7 +44,7 @@ class EmployeeRepositoryDatabase implements EmployeeRepository {
 
   public async findByEmail(email: string): Promise<Employee | null> {
     const [employee] = await this.databaseConnection.query(
-      `SELECT employees.id, employees.name, employees.email, employees.employee_role FROM employees WHERE email = $1`,
+      `SELECT employees.id, employees.name, employees.email, employees.password, employees.employee_role FROM employees WHERE email = $1`,
       [email]
     );
 

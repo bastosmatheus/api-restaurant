@@ -2,7 +2,7 @@ import { Deliveryman } from "../../../core/entities/deliveryman";
 import { ConflictError } from "../errors/conflict-error";
 import { Either, failure, success } from "../../../utils/either";
 import { DeliverymanRepository } from "../../../adapters/repositories/deliveryman-repository";
-import { Hasher } from "../../../infraestructure/cryptography/cryptography";
+import { HasherAndCompare } from "../../../infraestructure/cryptography/cryptography";
 
 type CreateDeliverymanUseCaseRequest = {
   name: string;
@@ -14,7 +14,7 @@ type CreateDeliverymanUseCaseRequest = {
 class CreateDeliverymanUseCase {
   constructor(
     private deliverymanRepository: DeliverymanRepository,
-    private hasher: Hasher
+    private hasher: HasherAndCompare
   ) {}
 
   public async execute({

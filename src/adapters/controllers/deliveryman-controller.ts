@@ -8,6 +8,7 @@ import { DeleteDeliverymanUseCase } from "../../application/use-cases/deliveryma
 import { FindAllDeliverymansUseCase } from "../../application/use-cases/deliveryman/find-all-deliverymans-use-case";
 import { FindDeliverymanByIdUseCase } from "../../application/use-cases/deliveryman/find-deliveryman-by-id-use-case";
 import { FindDeliverymanByEmailUseCase } from "../../application/use-cases/deliveryman/find-deliveryman-by-email-use-case";
+import { LoginDeliverymanUseCase } from "../../application/use-cases/deliveryman";
 
 class DeliverymanController {
   constructor(
@@ -18,7 +19,8 @@ class DeliverymanController {
     private readonly createDeliverymanUseCase: CreateDeliverymanUseCase,
     private readonly updateDeliverymanUseCase: UpdateDeliverymanUseCase,
     private readonly updatePasswordDeliverymanUseCase: UpdatePasswordDeliverymanUseCase,
-    private readonly deleteDeliverymanUseCase: DeleteDeliverymanUseCase
+    private readonly deleteDeliverymanUseCase: DeleteDeliverymanUseCase,
+    private readonly loginDeliverymanUseCase: LoginDeliverymanUseCase
   ) {
     this.httpServer.on("get", "/deliverymans", async () => {
       const deliverymans = await this.findAllDeliverymansUseCase.execute();
@@ -58,7 +60,11 @@ class DeliverymanController {
           type: "OK",
           statusCode: 200,
           deliveryman: {
-            ...deliveryman.value,
+            id: deliveryman.value.id,
+            name: deliveryman.value.name,
+            email: deliveryman.value.email,
+            birthday_date: deliveryman.value.birthday_date,
+            deliveries: deliveryman.value.deliveries,
           },
         };
       }
@@ -95,7 +101,11 @@ class DeliverymanController {
           type: "OK",
           statusCode: 200,
           deliveryman: {
-            ...deliveryman.value,
+            id: deliveryman.value.id,
+            name: deliveryman.value.name,
+            email: deliveryman.value.email,
+            birthday_date: deliveryman.value.birthday_date,
+            deliveries: deliveryman.value.deliveries,
           },
         };
       }
@@ -159,6 +169,47 @@ class DeliverymanController {
         },
       };
     });
+
+    this.httpServer.on(
+      "post",
+      "/deliverymans/login",
+      async (params: unknown, body: Deliveryman) => {
+        const loginDeliverymanSchema = z.object({
+          email: z
+            .string({
+              invalid_type_error: "O email deve ser uma string",
+              required_error: "Informe o email",
+            })
+            .email({ message: "Email inválido" }),
+          password: z
+            .string({
+              required_error: "Informe a senha",
+              invalid_type_error: "A senha deve ser uma string",
+            })
+            .min(5, { message: "A senha deve ter no mínimo 5 caracteres" }),
+        });
+
+        const { email, password } = body;
+
+        loginDeliverymanSchema.parse({ email, password });
+
+        const token = await this.loginDeliverymanUseCase.execute({ email, password });
+
+        if (token.isFailure()) {
+          return {
+            type: token.value.type,
+            statusCode: token.value.statusCode,
+            message: token.value.message,
+          };
+        }
+
+        return {
+          type: "OK",
+          statusCode: 200,
+          token: token.value,
+        };
+      }
+    );
 
     this.httpServer.on(
       "put",

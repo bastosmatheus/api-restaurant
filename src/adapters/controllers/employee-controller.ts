@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { HttpServer } from "../../infraestructure/http/http-server";
+import { LoginEmployeeUseCase } from "../../application/use-cases/employee/login-employee-use-case";
 import { CreateEmployeeUseCase } from "../../application/use-cases/employee/create-employee-use-case";
 import { DeleteEmployeeUseCase } from "../../application/use-cases/employee/delete-employee-use-case";
 import { UpdateEmployeeUseCase } from "../../application/use-cases/employee/update-employee-use-case";
@@ -20,7 +21,8 @@ class EmployeeController {
     private readonly createEmployeeUseCase: CreateEmployeeUseCase,
     private readonly updateEmployeeUseCase: UpdateEmployeeUseCase,
     private readonly updatePasswordEmployeeUseCase: UpdatePasswordEmployeeUseCase,
-    private readonly deleteEmployeeUseCase: DeleteEmployeeUseCase
+    private readonly deleteEmployeeUseCase: DeleteEmployeeUseCase,
+    private readonly loginEmployeeUseCase: LoginEmployeeUseCase
   ) {
     this.httpServer.on("get", "/employees", async () => {
       const employees = await this.findAllEmployeesUseCase.execute();
@@ -216,6 +218,43 @@ class EmployeeController {
         employee: {
           ...employee.value,
         },
+      };
+    });
+
+    this.httpServer.on("post", "/employees/login", async (params: unknown, body: Employee) => {
+      const loginEmployeeSchema = z.object({
+        email: z
+          .string({
+            invalid_type_error: "O email deve ser uma string",
+            required_error: "Informe o email",
+          })
+          .email({ message: "Email inválido" }),
+        password: z
+          .string({
+            required_error: "Informe a senha",
+            invalid_type_error: "A senha deve ser uma string",
+          })
+          .min(5, { message: "A senha deve ter no mínimo 5 caracteres" }),
+      });
+
+      const { email, password } = body;
+
+      loginEmployeeSchema.parse({ email, password });
+
+      const token = await this.loginEmployeeUseCase.execute({ email, password });
+
+      if (token.isFailure()) {
+        return {
+          type: token.value.type,
+          statusCode: token.value.statusCode,
+          message: token.value.message,
+        };
+      }
+
+      return {
+        type: "OK",
+        statusCode: 200,
+        token: token.value,
       };
     });
 

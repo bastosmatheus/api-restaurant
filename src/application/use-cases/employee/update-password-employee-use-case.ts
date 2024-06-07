@@ -1,6 +1,6 @@
-import { Hasher } from "../../../infraestructure/cryptography/cryptography";
 import { Employee } from "../../../core/entities/employee";
 import { NotFoundError } from "../errors/not-found-error";
+import { HasherAndCompare } from "../../../infraestructure/cryptography/cryptography";
 import { EmployeeRepository } from "../../../adapters/repositories/employee-repository";
 import { Either, failure, success } from "../../../utils/either";
 
@@ -12,7 +12,7 @@ type UpdatePasswordEmployeeUseCaseRequest = {
 class UpdatePasswordEmployeeUseCase {
   constructor(
     private employeeRepository: EmployeeRepository,
-    private hasher: Hasher
+    private hasher: HasherAndCompare
   ) {}
 
   public async execute({

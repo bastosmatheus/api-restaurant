@@ -1,7 +1,9 @@
+import { Token } from "../infraestructure/token/token";
 import { HttpServer } from "../infraestructure/http/http-server";
 import { UserRepository } from "../adapters/repositories/user-repository";
 import { UserController } from "../adapters/controllers/user-controller";
 import { HasherAndCompare } from "../infraestructure/cryptography/cryptography";
+import { LoginUserUseCase } from "../application/use-cases/user/login-user-use-case";
 import { DatabaseConnection } from "../infraestructure/database/database-connection";
 import { UserRepositoryDatabase } from "../infraestructure/repositories/user-repository-database";
 import {
@@ -13,8 +15,6 @@ import {
   UpdatePasswordUserUseCase,
   UpdateUserUseCase,
 } from "../application/use-cases/user/index";
-import { LoginUserUseCase } from "../application/use-cases/user/login-user-use-case";
-import { Token } from "../infraestructure/token/token";
 
 class UserRoutes {
   private readonly userRepository: UserRepository;

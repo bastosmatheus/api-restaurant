@@ -1,14 +1,23 @@
 import { z } from "zod";
 import { HttpServer } from "../../infraestructure/http/http-server";
 import { Deliveryman } from "../../core/entities/deliveryman";
-import { UpdatePasswordDeliverymanUseCase } from "../../application/use-cases/deliveryman/update-password-deliveryman-use-case";
-import { UpdateDeliverymanUseCase } from "../../application/use-cases/deliveryman/update-deliveryman-use-case";
-import { CreateDeliverymanUseCase } from "../../application/use-cases/deliveryman/create-deliveryman-use-case";
-import { DeleteDeliverymanUseCase } from "../../application/use-cases/deliveryman/delete-deliveryman-use-case";
-import { FindAllDeliverymansUseCase } from "../../application/use-cases/deliveryman/find-all-deliverymans-use-case";
-import { FindDeliverymanByIdUseCase } from "../../application/use-cases/deliveryman/find-deliveryman-by-id-use-case";
-import { FindDeliverymanByEmailUseCase } from "../../application/use-cases/deliveryman/find-deliveryman-by-email-use-case";
-import { LoginDeliverymanUseCase } from "../../application/use-cases/deliveryman";
+import { AuthMiddleware } from "../middlewares/auth-middleware";
+import {
+  CreateDeliverymanUseCase,
+  DeleteDeliverymanUseCase,
+  FindAllDeliverymansUseCase,
+  FindDeliverymanByEmailUseCase,
+  FindDeliverymanByIdUseCase,
+  LoginDeliverymanUseCase,
+  UpdateDeliverymanUseCase,
+  UpdatePasswordDeliverymanUseCase,
+} from "../../application/use-cases/deliveryman";
+
+type InfosToken = {
+  name: string;
+  email: string;
+  id_deliveryman: string;
+};
 
 class DeliverymanController {
   constructor(
@@ -22,7 +31,7 @@ class DeliverymanController {
     private readonly deleteDeliverymanUseCase: DeleteDeliverymanUseCase,
     private readonly loginDeliverymanUseCase: LoginDeliverymanUseCase
   ) {
-    this.httpServer.on("get", "/deliverymans", async () => {
+    this.httpServer.on("get", [], "/deliverymans", async () => {
       const deliverymans = await this.findAllDeliverymansUseCase.execute();
 
       return {
@@ -34,6 +43,7 @@ class DeliverymanController {
 
     this.httpServer.on(
       "get",
+      [],
       "/deliverymans/:{id}",
       async (params: { id: string }, body: unknown) => {
         const findDeliverymanByIdSchema = z.object({
@@ -72,6 +82,7 @@ class DeliverymanController {
 
     this.httpServer.on(
       "get",
+      [],
       "/deliverymans/email/:{email}",
       async (params: { email: string }, body: unknown) => {
         const findDeliverymanByEmailSchema = z.object({
@@ -111,7 +122,7 @@ class DeliverymanController {
       }
     );
 
-    this.httpServer.on("post", "/deliverymans", async (params: unknown, body: Deliveryman) => {
+    this.httpServer.on("post", [], "/deliverymans", async (params: unknown, body: Deliveryman) => {
       const createDeliverymanSchema = z.object({
         name: z
           .string({
@@ -172,6 +183,7 @@ class DeliverymanController {
 
     this.httpServer.on(
       "post",
+      [],
       "/deliverymans/login",
       async (params: unknown, body: Deliveryman) => {
         const loginDeliverymanSchema = z.object({
@@ -213,8 +225,9 @@ class DeliverymanController {
 
     this.httpServer.on(
       "put",
+      [AuthMiddleware.verifyToken],
       "/deliverymans/:{id}",
-      async (params: { id: string }, body: Deliveryman) => {
+      async (params: { id: string }, body: Deliveryman, infos: InfosToken) => {
         const updateDeliverymanSchema = z.object({
           id: z.string().uuid({
             message: "O ID deve ser um uuid",
@@ -227,12 +240,14 @@ class DeliverymanController {
 
         const { id } = params;
         const { name } = body;
+        const { id_deliveryman } = infos;
 
         updateDeliverymanSchema.parse({ id, name });
 
         const deliveryman = await this.updateDeliverymanUseCase.execute({
           id,
           name,
+          id_deliveryman,
         });
 
         if (deliveryman.isFailure()) {
@@ -255,8 +270,9 @@ class DeliverymanController {
 
     this.httpServer.on(
       "patch",
+      [AuthMiddleware.verifyToken],
       "/deliverymans/:{id}",
-      async (params: { id: string }, body: Deliveryman) => {
+      async (params: { id: string }, body: Deliveryman, infos: InfosToken) => {
         const updatePasswordSchema = z.object({
           id: z.string().uuid({
             message: "O ID deve ser um uuid",
@@ -271,6 +287,7 @@ class DeliverymanController {
 
         const { id } = params;
         const { password } = body;
+        const { id_deliveryman } = infos;
 
         updatePasswordSchema.parse({
           id,
@@ -280,6 +297,7 @@ class DeliverymanController {
         const deliveryman = await this.updatePasswordDeliverymanUseCase.execute({
           id,
           password,
+          id_deliveryman,
         });
 
         if (deliveryman.isFailure()) {
@@ -302,8 +320,9 @@ class DeliverymanController {
 
     this.httpServer.on(
       "delete",
+      [AuthMiddleware.verifyToken],
       "/deliverymans/:{id}",
-      async (params: { id: string }, body: unknown) => {
+      async (params: { id: string }, body: unknown, infos: InfosToken) => {
         const deleteDeliverymanSchema = z.object({
           id: z.string().uuid({
             message: "O ID deve ser um uuid",
@@ -311,10 +330,11 @@ class DeliverymanController {
         });
 
         const { id } = params;
+        const { id_deliveryman } = infos;
 
         deleteDeliverymanSchema.parse({ id });
 
-        const deliveryman = await this.deleteDeliverymanUseCase.execute({ id });
+        const deliveryman = await this.deleteDeliverymanUseCase.execute({ id, id_deliveryman });
 
         if (deliveryman.isFailure()) {
           return {

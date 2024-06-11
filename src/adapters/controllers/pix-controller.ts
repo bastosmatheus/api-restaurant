@@ -1,13 +1,16 @@
 import { z } from "zod";
 import { HttpServer } from "../../infraestructure/http/http-server";
 import { Pix, StatusPix } from "../../core/entities/pix";
-import { CreatePixUseCase } from "../../application/use-cases/pix/create-pix-use-case";
-import { FindAllPixsUseCase } from "../../application/use-cases/pix/find-all-pixs-use-case";
-import { FindPixByIdUseCase } from "../../application/use-cases/pix/find-pix-by-id-use-case";
-import { FindPixByCodeUseCase } from "../../application/use-cases/pix/find-pix-by-code-use-case";
-import { FindPixsByUserUseCase } from "../../application/use-cases/pix/find-pixs-by-user-use-case";
-import { UpdateStatusPixUseCase } from "../../application/use-cases/pix/update-status-pix-use-case";
-import { FindPixsByStatusUseCase } from "../../application/use-cases/pix/find-pixs-by-status-use-case";
+import { AuthMiddleware } from "../middlewares/auth-middleware";
+import {
+  FindAllPixsUseCase,
+  FindPixsByUserUseCase,
+  FindPixsByStatusUseCase,
+  FindPixByIdUseCase,
+  FindPixByCodeUseCase,
+  CreatePixUseCase,
+  UpdateStatusPixUseCase,
+} from "../../application/use-cases/pix";
 
 class PixController {
   constructor(
@@ -20,7 +23,7 @@ class PixController {
     private readonly createPixUseCase: CreatePixUseCase,
     private readonly updateStatusPixUseCase: UpdateStatusPixUseCase
   ) {
-    this.httpServer.on("get", "/pixs", async () => {
+    this.httpServer.on("get", [], "/pixs", async () => {
       const pixs = await this.findAllPixsUseCase.execute();
 
       return {
@@ -32,6 +35,7 @@ class PixController {
 
     this.httpServer.on(
       "get",
+      [AuthMiddleware.verifyToken],
       "/pixs/user/:{id_user}",
       async (params: { id_user: string }, body: unknown) => {
         const findPixsByUserSchema = z.object({
@@ -56,6 +60,7 @@ class PixController {
 
     this.httpServer.on(
       "get",
+      [AuthMiddleware.verifyToken],
       "/pixs/status/:{status}",
       async (params: { status: StatusPix }, body: unknown) => {
         const findPixsByStatusSchema = z.object({
@@ -97,38 +102,44 @@ class PixController {
       }
     );
 
-    this.httpServer.on("get", "/pixs/:{id}", async (params: { id: string }, body: unknown) => {
-      const findPixByIdSchema = z.object({
-        id: z.string().uuid({
-          message: "O ID deve ser um uuid",
-        }),
-      });
+    this.httpServer.on(
+      "get",
+      [AuthMiddleware.verifyToken],
+      "/pixs/:{id}",
+      async (params: { id: string }, body: unknown) => {
+        const findPixByIdSchema = z.object({
+          id: z.string().uuid({
+            message: "O ID deve ser um uuid",
+          }),
+        });
 
-      const { id } = params;
+        const { id } = params;
 
-      findPixByIdSchema.parse({ id });
+        findPixByIdSchema.parse({ id });
 
-      const pix = await this.findPixByIdUseCase.execute({ id });
+        const pix = await this.findPixByIdUseCase.execute({ id });
 
-      if (pix.isFailure()) {
+        if (pix.isFailure()) {
+          return {
+            type: pix.value.type,
+            statusCode: pix.value.statusCode,
+            message: pix.value.message,
+          };
+        }
+
         return {
-          type: pix.value.type,
-          statusCode: pix.value.statusCode,
-          message: pix.value.message,
+          type: "OK",
+          statusCode: 200,
+          pix: {
+            ...pix.value,
+          },
         };
       }
-
-      return {
-        type: "OK",
-        statusCode: 200,
-        pix: {
-          ...pix.value,
-        },
-      };
-    });
+    );
 
     this.httpServer.on(
       "get",
+      [AuthMiddleware.verifyToken],
       "/pixs/code/:{code}",
       async (params: { code: string }, body: unknown) => {
         const findPixByCodeSchema = z.object({
@@ -162,65 +173,75 @@ class PixController {
       }
     );
 
-    this.httpServer.on("post", "/pixs", async (params: unknown, body: Pix) => {
-      const createPixSchema = z.object({
-        id_user: z.string().uuid({
-          message: "O ID deve ser um uuid",
-        }),
-      });
+    this.httpServer.on(
+      "post",
+      [AuthMiddleware.verifyToken],
+      "/pixs",
+      async (params: unknown, body: Pix) => {
+        const createPixSchema = z.object({
+          id_user: z.string().uuid({
+            message: "O ID deve ser um uuid",
+          }),
+        });
 
-      const { id_user } = body;
+        const { id_user } = body;
 
-      createPixSchema.parse({ id_user });
+        createPixSchema.parse({ id_user });
 
-      const pix = await this.createPixUseCase.execute({ id_user });
+        const pix = await this.createPixUseCase.execute({ id_user });
 
-      if (pix.isFailure()) {
+        if (pix.isFailure()) {
+          return {
+            type: pix.value.type,
+            statusCode: pix.value.statusCode,
+            message: pix.value.message,
+          };
+        }
+
         return {
-          type: pix.value.type,
-          statusCode: pix.value.statusCode,
-          message: pix.value.message,
+          type: "Created",
+          statusCode: 201,
+          pix: {
+            ...pix.value,
+          },
         };
       }
+    );
 
-      return {
-        type: "Created",
-        statusCode: 201,
-        pix: {
-          ...pix.value,
-        },
-      };
-    });
+    this.httpServer.on(
+      "patch",
+      [AuthMiddleware.verifyToken],
+      "/pixs/:{id}",
+      async (params: { id: string }, body: unknown) => {
+        const updateStatusSchema = z.object({
+          id: z.string().uuid({
+            message: "O ID deve ser um uuid",
+          }),
+        });
 
-    this.httpServer.on("patch", "/pixs/:{id}", async (params: { id: string }, body: unknown) => {
-      const updateStatusSchema = z.object({
-        id: z.string().uuid({
-          message: "O ID deve ser um uuid",
-        }),
-      });
+        const { id } = params;
 
-      const { id } = params;
+        updateStatusSchema.parse({ id });
 
-      updateStatusSchema.parse({ id });
+        const pix = await this.updateStatusPixUseCase.execute({ id });
 
-      const pix = await this.updateStatusPixUseCase.execute({ id });
+        if (pix.isFailure()) {
+          return {
+            type: pix.value.type,
+            statusCode: pix.value.statusCode,
+            message: pix.value.message,
+          };
+        }
 
-      if (pix.isFailure()) {
         return {
-          type: pix.value.type,
-          statusCode: pix.value.statusCode,
-          message: pix.value.message,
+          type: "OK",
+          statusCode: 200,
+          pix: {
+            ...pix.value,
+          },
         };
       }
-
-      return {
-        type: "OK",
-        statusCode: 200,
-        pix: {
-          ...pix.value,
-        },
-      };
-    });
+    );
   }
 }
 

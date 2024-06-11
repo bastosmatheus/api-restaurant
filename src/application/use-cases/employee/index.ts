@@ -6,3 +6,4 @@ export * from "./create-employee-use-case";
 export * from "./update-employee-use-case";
 export * from "./update-password-employee-use-case";
 export * from "./delete-employee-use-case";
+export * from "./login-employee-use-case";

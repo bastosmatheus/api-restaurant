@@ -15,8 +15,8 @@ class JwtAdapter implements Token {
     this.jwt = jwt;
   }
 
-  public async sign(data: unknown): Promise<string> {
-    const token = this.jwt.sign({ data }, process.env.SECRET_KEY as string, { expiresIn: "30d" });
+  public async sign(data: {}): Promise<string> {
+    const token = this.jwt.sign(data, process.env.SECRET_KEY as string, { expiresIn: "30d" });
 
     return token;
   }

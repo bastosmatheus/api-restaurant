@@ -1,5 +1,6 @@
 import { BcryptAdapter } from "../../../infraestructure/cryptography/cryptography";
 import { NotFoundError } from "../errors/not-found-error";
+import { UnauthorizedError } from "../errors/unauthorized-error";
 import { CreateEmployeeUseCase } from "./create-employee-use-case";
 import { UpdateEmployeeUseCase } from "./update-employee-use-case";
 import { InMemoryEmployeeRepository } from "../../../infraestructure/repositories/in-memory/in-memory-employee-repository";
@@ -34,9 +35,33 @@ describe("update an employee", () => {
       id,
       name: "Matheus",
       employee_role: "Garçom",
+      id_employee: id,
     });
 
     expect(employee.isSuccess()).toBe(true);
+  });
+
+  it("should not be possible to update an employee if the id_employee is different the id", async () => {
+    const employeeCreated = await createEmployeeUseCase.execute({
+      name: "Matheus",
+      email: "matheus@gmail.com",
+      password: "102030",
+      employee_role: "Cozinheiro",
+    });
+
+    if (employeeCreated.isFailure()) return;
+
+    const id = employeeCreated.value.id;
+
+    const employee = await updateEmployeeUseCase.execute({
+      id,
+      name: "Matheus",
+      employee_role: "Garçom",
+      id_employee: "daiodjuhqj8d871819dmnlakd",
+    });
+
+    expect(employee.isFailure()).toBe(true);
+    expect(employee.value).toBeInstanceOf(UnauthorizedError);
   });
 
   it("should not be possible to update an employee if the employee is not found", async () => {

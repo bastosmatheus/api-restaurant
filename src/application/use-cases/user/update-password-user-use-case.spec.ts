@@ -1,6 +1,7 @@
 import { BcryptAdapter } from "../../../infraestructure/cryptography/cryptography";
 import { NotFoundError } from "../errors/not-found-error";
 import { CreateUserUseCase } from "./create-user-use-case";
+import { UnauthorizedError } from "../errors/unauthorized-error";
 import { InMemoryUserRepository } from "../../../infraestructure/repositories/in-memory/in-memory-user-repository";
 import { UpdatePasswordUserUseCase } from "./update-password-user-use-case";
 import { describe, it, beforeEach, expect } from "vitest";
@@ -32,9 +33,31 @@ describe("update password user", () => {
     const user = await updatePasswordUserUseCase.execute({
       id,
       password: "102030",
+      id_user: id,
     });
 
     expect(user.isSuccess()).toBe(true);
+  });
+
+  it("should not be possible to update a password if the id_user is different the id", async () => {
+    const userCreated = await createUserUseCase.execute({
+      name: "Matheus",
+      email: "matheus@gmail.com",
+      password: "12345",
+    });
+
+    if (userCreated.isFailure()) return;
+
+    const id = userCreated.value.id;
+
+    const user = await updatePasswordUserUseCase.execute({
+      id,
+      password: "102030",
+      id_user: "doqijdiuoqmdio18923u1dm oidjaioda",
+    });
+
+    expect(user.isFailure()).toBe(true);
+    expect(user.value).toBeInstanceOf(UnauthorizedError);
   });
 
   it("should be possible to update a password user by id", async () => {

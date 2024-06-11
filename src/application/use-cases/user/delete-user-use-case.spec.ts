@@ -2,6 +2,7 @@ import { BcryptAdapter } from "../../../infraestructure/cryptography/cryptograph
 import { NotFoundError } from "../errors/not-found-error";
 import { CreateUserUseCase } from "./create-user-use-case";
 import { DeleteUserUseCase } from "./delete-user-use-case";
+import { UnauthorizedError } from "../errors/unauthorized-error";
 import { InMemoryUserRepository } from "../../../infraestructure/repositories/in-memory/in-memory-user-repository";
 import { describe, it, beforeEach, expect } from "vitest";
 
@@ -31,9 +32,30 @@ describe("delete user by id", () => {
 
     const user = await deleteUserUseCase.execute({
       id,
+      id_user: id,
     });
 
     expect(user.isSuccess()).toBe(true);
+  });
+
+  it("should not be possible to delete a user if the id_user is different the id", async () => {
+    const userCreated = await createUserUseCase.execute({
+      name: "Matheus",
+      email: "matheus@gmail.com",
+      password: "12345",
+    });
+
+    if (userCreated.isFailure()) return;
+
+    const id = userCreated.value.id;
+
+    const user = await deleteUserUseCase.execute({
+      id,
+      id_user: "19dji9admionm1uidn1uinduiqa",
+    });
+
+    expect(user.isFailure()).toBe(true);
+    expect(user.value).toBeInstanceOf(UnauthorizedError);
   });
 
   it("should not be possible to delete a user if the user is not found", async () => {

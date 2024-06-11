@@ -1,14 +1,23 @@
 import { z } from "zod";
 import { User } from "../../core/entities/user";
 import { HttpServer } from "../../infraestructure/http/http-server";
-import { CreateUserUseCase } from "../../application/use-cases/user/create-user-use-case";
-import { UpdateUserUseCase } from "../../application/use-cases/user/update-user-use-case";
-import { DeleteUserUseCase } from "../../application/use-cases/user/delete-user-use-case";
-import { FindAllUsersUseCase } from "../../application/use-cases/user/find-all-users-use-case";
-import { FindUserByIdUseCase } from "../../application/use-cases/user/find-user-by-id-use-case";
-import { FindUserByEmailUseCase } from "../../application/use-cases/user/find-user-by-email-use-case";
-import { UpdatePasswordUserUseCase } from "../../application/use-cases/user/update-password-user-use-case";
-import { LoginUserUseCase } from "../../application/use-cases/user/login-user-use-case";
+import { AuthMiddleware } from "../middlewares/auth-middleware";
+import {
+  FindAllUsersUseCase,
+  FindUserByIdUseCase,
+  FindUserByEmailUseCase,
+  CreateUserUseCase,
+  UpdateUserUseCase,
+  UpdatePasswordUserUseCase,
+  DeleteUserUseCase,
+  LoginUserUseCase,
+} from "../../application/use-cases/user";
+
+type InfosToken = {
+  name: string;
+  email: string;
+  id_user: string;
+};
 
 class UserController {
   constructor(
@@ -22,7 +31,7 @@ class UserController {
     private readonly deleteUserUseCase: DeleteUserUseCase,
     private readonly loginUserUseCase: LoginUserUseCase
   ) {
-    this.httpServer.on("get", "/users", async () => {
+    this.httpServer.on("get", [], "/users", async () => {
       const users = await this.findAllUsersUseCase.execute();
 
       return {
@@ -32,7 +41,7 @@ class UserController {
       };
     });
 
-    this.httpServer.on("get", "/users/:{id}", async (params: { id: string }, body: unknown) => {
+    this.httpServer.on("get", [], "/users/:{id}", async (params: { id: string }, body: unknown) => {
       const findUserByIdSchema = z.object({
         id: z.string().uuid({
           message: "O ID deve ser um uuid",
@@ -64,6 +73,7 @@ class UserController {
 
     this.httpServer.on(
       "get",
+      [],
       "/users/email/:{email}",
       async (params: { email: string }, body: unknown) => {
         const findUserByEmailSchema = z.object({
@@ -99,7 +109,7 @@ class UserController {
       }
     );
 
-    this.httpServer.on("post", "/users", async (params: unknown, body: User) => {
+    this.httpServer.on("post", [], "/users", async (params: unknown, body: User) => {
       const createUserSchema = z.object({
         name: z
           .string({
@@ -144,7 +154,7 @@ class UserController {
       };
     });
 
-    this.httpServer.on("post", "/users/login", async (params: unknown, body: User) => {
+    this.httpServer.on("post", [], "/users/login", async (params: unknown, body: User) => {
       const loginUserSchema = z.object({
         email: z
           .string({
@@ -181,109 +191,129 @@ class UserController {
       };
     });
 
-    this.httpServer.on("put", "/users/:{id}", async (params: { id: string }, body: User) => {
-      const updateUserSchema = z.object({
-        id: z.string().uuid({
-          message: "O ID deve ser um uuid",
-        }),
-        name: z
-          .string({
-            invalid_type_error: "O nome deve ser uma string",
-            required_error: "Informe o nome",
-          })
-          .min(3, { message: "O nome deve ter no minimo 3 caracteres" }),
-      });
+    this.httpServer.on(
+      "put",
+      [AuthMiddleware.verifyToken],
+      "/users/:{id}",
+      async (params: { id: string }, body: User, infos: InfosToken) => {
+        const updateUserSchema = z.object({
+          id: z.string().uuid({
+            message: "O ID deve ser um uuid",
+          }),
+          name: z
+            .string({
+              invalid_type_error: "O nome deve ser uma string",
+              required_error: "Informe o nome",
+            })
+            .min(3, { message: "O nome deve ter no minimo 3 caracteres" }),
+        });
 
-      const { id } = params;
-      const { name } = body;
+        const { id } = params;
+        const { name } = body;
+        const { id_user } = infos;
 
-      updateUserSchema.parse({ id, name });
+        updateUserSchema.parse({ id, name });
 
-      const user = await this.updateUserUseCase.execute({ id, name });
+        const user = await this.updateUserUseCase.execute({ id, name, id_user });
 
-      if (user.isFailure()) {
+        if (user.isFailure()) {
+          return {
+            type: user.value.type,
+            statusCode: user.value.statusCode,
+            message: user.value.message,
+          };
+        }
+
         return {
-          type: user.value.type,
-          statusCode: user.value.statusCode,
-          message: user.value.message,
+          type: "OK",
+          statusCode: 200,
+          user: {
+            ...user.value,
+          },
         };
       }
+    );
 
-      return {
-        type: "OK",
-        statusCode: 200,
-        user: {
-          ...user.value,
-        },
-      };
-    });
+    this.httpServer.on(
+      "patch",
+      [AuthMiddleware.verifyToken],
+      "/users/:{id}",
+      async (params: { id: string }, body: User, infos: InfosToken) => {
+        const updatePasswordUserSchema = z.object({
+          id: z.string().uuid({
+            message: "O ID deve ser um uuid",
+          }),
+          password: z
+            .string({
+              required_error: "Informe a senha",
+              invalid_type_error: "A senha deve ser uma string",
+            })
+            .min(5, { message: "A senha deve ter no mínimo 5 caracteres" }),
+        });
 
-    this.httpServer.on("patch", "/users/:{id}", async (params: { id: string }, body: User) => {
-      const updatePasswordUserSchema = z.object({
-        id: z.string().uuid({
-          message: "O ID deve ser um uuid",
-        }),
-        password: z
-          .string({
-            required_error: "Informe a senha",
-            invalid_type_error: "A senha deve ser uma string",
-          })
-          .min(5, { message: "A senha deve ter no mínimo 5 caracteres" }),
-      });
+        const { id } = params;
+        const { password } = body;
+        const { id_user } = infos;
 
-      const { id } = params;
-      const { password } = body;
+        updatePasswordUserSchema.parse({ id, password });
 
-      updatePasswordUserSchema.parse({ id, password });
+        const user = await this.updatePasswordUserUseCase.execute({ id, password, id_user });
 
-      const user = await this.updatePasswordUserUseCase.execute({ id, password });
+        if (user.isFailure()) {
+          return {
+            type: user.value.type,
+            statusCode: user.value.statusCode,
+            message: user.value.message,
+          };
+        }
 
-      if (user.isFailure()) {
         return {
-          type: user.value.type,
-          statusCode: user.value.statusCode,
-          message: user.value.message,
+          type: "OK",
+          statusCode: 200,
+          user: {
+            ...user.value,
+          },
         };
       }
+    );
 
-      return {
-        type: "OK",
-        statusCode: 200,
-        user: {
-          ...user.value,
-        },
-      };
-    });
+    this.httpServer.on(
+      "delete",
+      [AuthMiddleware.verifyToken],
+      "/users/:{id}",
+      async (params: { id: string }, body: unknown, infos: InfosToken) => {
+        const deleteUserSchema = z.object({
+          id: z.string().uuid({
+            message: "O ID deve ser um uuid",
+          }),
+        });
 
-    this.httpServer.on("delete", "/users/:{id}", async (params: { id: string }, body: unknown) => {
-      const deleteUserSchema = z.object({
-        id: z.string().uuid({
-          message: "O ID deve ser um uuid",
-        }),
-      });
+        console.log(infos);
 
-      const { id } = params;
+        const { id } = params;
+        const { id_user } = infos;
 
-      deleteUserSchema.parse({ id });
+        deleteUserSchema.parse({ id });
 
-      const user = await this.deleteUserUseCase.execute({ id });
+        const user = await this.deleteUserUseCase.execute({ id, id_user });
 
-      if (user.isFailure()) {
+        if (user.isFailure()) {
+          return {
+            type: user.value.type,
+            statusCode: user.value.statusCode,
+            message: user.value.message,
+          };
+        }
+
         return {
-          type: user.value.type,
-          statusCode: user.value.statusCode,
-          message: user.value.message,
+          type: "OK",
+          statusCode: 200,
+          user: {
+            ...user.value,
+          },
         };
       }
-
-      return {
-        type: "OK",
-        statusCode: 200,
-        user: {
-          ...user.value,
-        },
-      };
-    });
+    );
   }
 }
 

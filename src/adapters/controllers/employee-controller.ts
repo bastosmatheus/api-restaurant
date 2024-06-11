@@ -1,15 +1,25 @@
 import { z } from "zod";
 import { HttpServer } from "../../infraestructure/http/http-server";
-import { LoginEmployeeUseCase } from "../../application/use-cases/employee/login-employee-use-case";
-import { CreateEmployeeUseCase } from "../../application/use-cases/employee/create-employee-use-case";
-import { DeleteEmployeeUseCase } from "../../application/use-cases/employee/delete-employee-use-case";
-import { UpdateEmployeeUseCase } from "../../application/use-cases/employee/update-employee-use-case";
+import { AuthMiddleware } from "../middlewares/auth-middleware";
 import { Employee, EmployeeRole } from "../../core/entities/employee";
-import { FindAllEmployeesUseCase } from "../../application/use-cases/employee/find-all-employees-use-case";
-import { FindEmployeeByIdUseCase } from "../../application/use-cases/employee/find-employee-by-id-use-case";
-import { FindEmployeeByEmailUseCase } from "../../application/use-cases/employee/find-employee-by-email-use-case";
-import { FindEmployeesByRoleUseCase } from "../../application/use-cases/employee/find-employees-by-role-use-case";
-import { UpdatePasswordEmployeeUseCase } from "../../application/use-cases/employee/update-password-employee-use-case";
+import {
+  FindAllEmployeesUseCase,
+  FindEmployeesByRoleUseCase,
+  FindEmployeeByIdUseCase,
+  FindEmployeeByEmailUseCase,
+  CreateEmployeeUseCase,
+  UpdateEmployeeUseCase,
+  UpdatePasswordEmployeeUseCase,
+  DeleteEmployeeUseCase,
+  LoginEmployeeUseCase,
+} from "../../application/use-cases/employee";
+
+type InfosToken = {
+  name: string;
+  email: string;
+  employee_role: string;
+  id_employee: string;
+};
 
 class EmployeeController {
   constructor(
@@ -24,7 +34,7 @@ class EmployeeController {
     private readonly deleteEmployeeUseCase: DeleteEmployeeUseCase,
     private readonly loginEmployeeUseCase: LoginEmployeeUseCase
   ) {
-    this.httpServer.on("get", "/employees", async () => {
+    this.httpServer.on("get", [], "/employees", async () => {
       const employees = await this.findAllEmployeesUseCase.execute();
 
       return {
@@ -36,6 +46,7 @@ class EmployeeController {
 
     this.httpServer.on(
       "get",
+      [],
       "/employees/role/:{employee_role}",
       async (params: { employee_role: EmployeeRole }, body: unknown) => {
         const findEmployeesByRoleSchema = z.object({
@@ -78,38 +89,44 @@ class EmployeeController {
       }
     );
 
-    this.httpServer.on("get", "/employees/:{id}", async (params: { id: string }, body: unknown) => {
-      const findEmployeeByIdSchema = z.object({
-        id: z.string().uuid({
-          message: "O ID deve ser um uuid",
-        }),
-      });
+    this.httpServer.on(
+      "get",
+      [],
+      "/employees/:{id}",
+      async (params: { id: string }, body: unknown) => {
+        const findEmployeeByIdSchema = z.object({
+          id: z.string().uuid({
+            message: "O ID deve ser um uuid",
+          }),
+        });
 
-      const { id } = params;
+        const { id } = params;
 
-      findEmployeeByIdSchema.parse({ id });
+        findEmployeeByIdSchema.parse({ id });
 
-      const employee = await this.findEmployeeByIdUseCase.execute({ id });
+        const employee = await this.findEmployeeByIdUseCase.execute({ id });
 
-      if (employee.isFailure()) {
+        if (employee.isFailure()) {
+          return {
+            type: employee.value.type,
+            statusCode: employee.value.statusCode,
+            message: employee.value.message,
+          };
+        }
+
         return {
-          type: employee.value.type,
-          statusCode: employee.value.statusCode,
-          message: employee.value.message,
+          type: "OK",
+          statusCode: 200,
+          employee: {
+            ...employee.value,
+          },
         };
       }
-
-      return {
-        type: "OK",
-        statusCode: 200,
-        employee: {
-          ...employee.value,
-        },
-      };
-    });
+    );
 
     this.httpServer.on(
       "get",
+      [],
       "/employees/email/:{email}",
       async (params: { email: string }, body: unknown) => {
         const findEmployeeByEmailSchema = z.object({
@@ -145,7 +162,7 @@ class EmployeeController {
       }
     );
 
-    this.httpServer.on("post", "/employees", async (params: unknown, body: Employee) => {
+    this.httpServer.on("post", [], "/employees", async (params: unknown, body: Employee) => {
       const createEmployeeSchema = z.object({
         name: z
           .string({
@@ -221,7 +238,7 @@ class EmployeeController {
       };
     });
 
-    this.httpServer.on("post", "/employees/login", async (params: unknown, body: Employee) => {
+    this.httpServer.on("post", [], "/employees/login", async (params: unknown, body: Employee) => {
       const loginEmployeeSchema = z.object({
         email: z
           .string({
@@ -260,8 +277,9 @@ class EmployeeController {
 
     this.httpServer.on(
       "put",
+      [AuthMiddleware.verifyToken],
       "/employees/:{id}",
-      async (params: { id: string }, body: Employee) => {
+      async (params: { id: string }, body: Employee, infos: InfosToken) => {
         const updateEmployeeSchema = z.object({
           id: z.string().uuid({
             message: "O ID deve ser um uuid",
@@ -297,6 +315,7 @@ class EmployeeController {
 
         const { id } = params;
         const { name, employee_role } = body;
+        const { id_employee } = infos;
 
         updateEmployeeSchema.parse({
           id,
@@ -308,6 +327,7 @@ class EmployeeController {
           id,
           name,
           employee_role,
+          id_employee,
         });
 
         if (employee.isFailure()) {
@@ -330,8 +350,9 @@ class EmployeeController {
 
     this.httpServer.on(
       "patch",
+      [AuthMiddleware.verifyToken],
       "/employees/:{id}",
-      async (params: { id: string }, body: Employee) => {
+      async (params: { id: string }, body: Employee, infos: InfosToken) => {
         const updatePasswordSchema = z.object({
           id: z.string().uuid({
             message: "O ID deve ser um uuid",
@@ -346,6 +367,7 @@ class EmployeeController {
 
         const { id } = params;
         const { password } = body;
+        const { id_employee } = infos;
 
         updatePasswordSchema.parse({
           id,
@@ -355,6 +377,7 @@ class EmployeeController {
         const employee = await this.updatePasswordEmployeeUseCase.execute({
           id,
           password,
+          id_employee,
         });
 
         if (employee.isFailure()) {
@@ -377,8 +400,9 @@ class EmployeeController {
 
     this.httpServer.on(
       "delete",
+      [AuthMiddleware.verifyToken],
       "/employees/:{id}",
-      async (params: { id: string }, body: unknown) => {
+      async (params: { id: string }, body: unknown, infos: InfosToken) => {
         const deleteEmployeeSchema = z.object({
           id: z.string().uuid({
             message: "O ID deve ser um uuid",
@@ -386,10 +410,11 @@ class EmployeeController {
         });
 
         const { id } = params;
+        const { id_employee } = infos;
 
         deleteEmployeeSchema.parse({ id });
 
-        const employee = await this.deleteEmployeeUseCase.execute({ id });
+        const employee = await this.deleteEmployeeUseCase.execute({ id, id_employee });
 
         if (employee.isFailure()) {
           return {

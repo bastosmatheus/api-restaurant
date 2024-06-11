@@ -1,19 +1,19 @@
 import cors from "cors";
 import { ZodError } from "zod";
 import bodyParser from "body-parser";
-import express, { Request, Response } from "express";
+import express, { Request, RequestHandler, Response } from "express";
 
 type HttpMethods = "post" | "get" | "put" | "patch" | "delete";
-
-interface HttpServer {
-  listen(port: number): void;
-  on(method: HttpMethods, url: string, callback: Function): void;
-}
 
 type Output = {
   type: string;
   statusCode: number;
 };
+
+interface HttpServer {
+  listen(port: number): void;
+  on(method: HttpMethods, middleware: RequestHandler[], url: string, callback: Function): void;
+}
 
 class ExpressAdapter implements HttpServer {
   public readonly app: express.Express;
@@ -34,36 +34,45 @@ class ExpressAdapter implements HttpServer {
     });
   }
 
-  public on(method: HttpMethods, url: string, callback: Function) {
-    this.app[method](url.replace(/\{|\}/g, ""), async (req: Request, res: Response) => {
-      try {
-        const output: Output = await callback(req.params, req.body);
+  public on(
+    method: HttpMethods,
+    middleware: RequestHandler[] = [],
+    url: string,
+    callback: Function
+  ) {
+    this.app[method](
+      url.replace(/\{|\}/g, ""),
+      ...middleware,
+      async (req: Request, res: Response) => {
+        try {
+          const output: Output = await callback(req.params, req.body, req.infosToken);
 
-        return res.status(output.statusCode).json(output);
-      } catch (error: unknown) {
-        if (error instanceof ZodError) {
-          return res.status(400).json({
-            type: "Bad Request",
-            statusCode: 400,
-            message: error.issues[0].message,
+          return res.status(output.statusCode).json(output);
+        } catch (error: unknown) {
+          if (error instanceof ZodError) {
+            return res.status(400).json({
+              type: "Bad Request",
+              statusCode: 400,
+              message: error.issues[0].message,
+            });
+          }
+
+          if (error instanceof Error) {
+            return res.status(400).json({
+              type: "Bad Request",
+              statusCode: 400,
+              message: error.message,
+            });
+          }
+
+          return res.status(500).json({
+            type: "Internal Server Error",
+            statusCode: 500,
+            message: "Servidor com problemas, aguarde um pouco",
           });
         }
-
-        if (error instanceof Error) {
-          return res.status(400).json({
-            type: "Bad Request",
-            statusCode: 400,
-            message: error.message,
-          });
-        }
-
-        return res.status(500).json({
-          type: "Internal Server Error",
-          statusCode: 500,
-          message: "Servidor com problemas, aguarde um pouco",
-        });
       }
-    });
+    );
   }
 
   public listen(port: number): void {

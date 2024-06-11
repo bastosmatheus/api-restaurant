@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Delivery } from "../../core/entities/delivery";
 import { HttpServer } from "../../infraestructure/http/http-server";
+import { AuthMiddleware } from "../middlewares/auth-middleware";
 import {
   CreateDeliveryUseCase,
   DeliveryAcceptedUseCase,
@@ -22,18 +23,8 @@ class DeliveryController {
     private readonly deliveryAcceptedUseCase: DeliveryAcceptedUseCase,
     private readonly deliveryCompletedUseCase: DeliveryCompletedUseCase
   ) {
-    this.httpServer.on("get", "/deliveries", async () => {
+    this.httpServer.on("get", [], "/deliveries", async () => {
       const deliveries = await this.findAllDeliveriesUseCase.execute();
-
-      return {
-        type: "OK",
-        statusCode: 200,
-        deliveries,
-      };
-    });
-
-    this.httpServer.on("get", "/deliveries/not_accepted", async () => {
-      const deliveries = await this.findDeliveriesByNotAcceptedUseCase.execute();
 
       return {
         type: "OK",
@@ -44,17 +35,31 @@ class DeliveryController {
 
     this.httpServer.on(
       "get",
+      [AuthMiddleware.verifyToken],
+      "/deliveries/not_accepted",
+      async () => {
+        const deliveries = await this.findDeliveriesByNotAcceptedUseCase.execute();
+
+        return {
+          type: "OK",
+          statusCode: 200,
+          deliveries,
+        };
+      }
+    );
+
+    this.httpServer.on(
+      "get",
+      [AuthMiddleware.verifyToken],
       "/deliveries/deliveryman/:{id_deliveryman}",
-      async (params: { id_deliveryman: string | null }, body: unknown) => {
+      async (params: { id_deliveryman: string }, body: unknown) => {
         const findDeliveriesByDeliverymanSchema = z.object({
           id_deliveryman: z.string().uuid({
             message: "O ID deve ser um uuid",
           }),
         });
 
-        let { id_deliveryman } = params;
-
-        id_deliveryman === "null" ? (id_deliveryman = null) : id_deliveryman;
+        const { id_deliveryman } = params;
 
         findDeliveriesByDeliverymanSchema.parse({ id_deliveryman });
 
@@ -72,6 +77,7 @@ class DeliveryController {
 
     this.httpServer.on(
       "get",
+      [AuthMiddleware.verifyToken],
       "/deliveries/:{id}",
       async (params: { id: string }, body: unknown) => {
         const findDeliveryByIdSchema = z.object({
@@ -104,38 +110,44 @@ class DeliveryController {
       }
     );
 
-    this.httpServer.on("post", "/deliveries", async (params: unknown, body: Delivery) => {
-      const createDeliverySchema = z.object({
-        id_order: z.string().uuid({
-          message: "O ID do pedido deve ser um uuid",
-        }),
-      });
+    this.httpServer.on(
+      "post",
+      [AuthMiddleware.verifyToken],
+      "/deliveries",
+      async (params: unknown, body: Delivery) => {
+        const createDeliverySchema = z.object({
+          id_order: z.string().uuid({
+            message: "O ID do pedido deve ser um uuid",
+          }),
+        });
 
-      const { id_order } = body;
+        const { id_order } = body;
 
-      createDeliverySchema.parse({ id_order });
+        createDeliverySchema.parse({ id_order });
 
-      const delivery = await this.createDeliveryUseCase.execute({ id_order });
+        const delivery = await this.createDeliveryUseCase.execute({ id_order });
 
-      if (delivery.isFailure()) {
+        if (delivery.isFailure()) {
+          return {
+            type: delivery.value.type,
+            statusCode: delivery.value.statusCode,
+            message: delivery.value.message,
+          };
+        }
+
         return {
-          type: delivery.value.type,
-          statusCode: delivery.value.statusCode,
-          message: delivery.value.message,
+          type: "Created",
+          statusCode: 201,
+          delivery: {
+            ...delivery.value,
+          },
         };
       }
-
-      return {
-        type: "Created",
-        statusCode: 201,
-        delivery: {
-          ...delivery.value,
-        },
-      };
-    });
+    );
 
     this.httpServer.on(
       "patch",
+      [AuthMiddleware.verifyToken],
       "/deliveries/:{id}/deliveryman/:{id_deliveryman}",
       async (params: { id: string; id_deliveryman: string }, body: unknown) => {
         const deliveryAcceptedSchema = z.object({
@@ -173,6 +185,7 @@ class DeliveryController {
 
     this.httpServer.on(
       "patch",
+      [AuthMiddleware.verifyToken],
       "/deliveries/:{id}",
       async (params: { id: string }, body: unknown) => {
         const deliveryCompletedSchema = z.object({

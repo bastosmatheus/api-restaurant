@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { OrderFood } from "../../core/entities/order-food";
 import { HttpServer } from "../../infraestructure/http/http-server";
+import { AuthMiddleware } from "../middlewares/auth-middleware";
 import {
   CreateOrderFoodUseCase,
   FindAllOrdersFoodsUseCase,
@@ -18,7 +19,7 @@ class OrderFoodController {
     private readonly findOrderFoodByIdUseCase: FindOrderFoodByIdUseCase,
     private readonly createOrderFoodUseCase: CreateOrderFoodUseCase
   ) {
-    this.httpServer.on("get", "/orders_foods", async () => {
+    this.httpServer.on("get", [], "/orders_foods", async () => {
       const orderFood = await this.findAllOrdersFoodsUseCase.execute();
 
       return {
@@ -30,6 +31,7 @@ class OrderFoodController {
 
     this.httpServer.on(
       "get",
+      [AuthMiddleware.verifyToken],
       "/orders_foods/food/:{id_food}",
       async (params: { id_food: string }, body: unknown) => {
         const findOrderFoodByFoodSchema = z.object({
@@ -54,6 +56,7 @@ class OrderFoodController {
 
     this.httpServer.on(
       "get",
+      [AuthMiddleware.verifyToken],
       "/orders_foods/order/:{id_order}",
       async (params: { id_order: string }, body: unknown) => {
         const findOrderFoodByOrderSchema = z.object({
@@ -78,6 +81,7 @@ class OrderFoodController {
 
     this.httpServer.on(
       "get",
+      [AuthMiddleware.verifyToken],
       "/orders_foods/:{id}",
       async (params: { id: string }, body: unknown) => {
         const findOrderFoodByIdSchema = z.object({
@@ -110,48 +114,53 @@ class OrderFoodController {
       }
     );
 
-    this.httpServer.on("post", "/orders_foods", async (params: unknown, body: OrderFood) => {
-      const createOrderFoodSchema = z.object({
-        quantity: z
-          .number({
-            required_error: "Informe a quantidade a ser adicionada",
-            invalid_type_error: "A quantidade deve ser um número",
-          })
-          .min(1, { message: "A quantidade não pode ser menor que 1" }),
-        id_order: z.string().uuid({
-          message: "O ID do pedido deve ser um uuid",
-        }),
-        id_food: z.string().uuid({
-          message: "O ID do alimento deve ser um uuid",
-        }),
-      });
+    this.httpServer.on(
+      "post",
+      [AuthMiddleware.verifyToken],
+      "/orders_foods",
+      async (params: unknown, body: OrderFood) => {
+        const createOrderFoodSchema = z.object({
+          quantity: z
+            .number({
+              required_error: "Informe a quantidade a ser adicionada",
+              invalid_type_error: "A quantidade deve ser um número",
+            })
+            .min(1, { message: "A quantidade não pode ser menor que 1" }),
+          id_order: z.string().uuid({
+            message: "O ID do pedido deve ser um uuid",
+          }),
+          id_food: z.string().uuid({
+            message: "O ID do alimento deve ser um uuid",
+          }),
+        });
 
-      const { quantity, id_order, id_food } = body;
+        const { quantity, id_order, id_food } = body;
 
-      createOrderFoodSchema.parse({ quantity, id_order, id_food });
+        createOrderFoodSchema.parse({ quantity, id_order, id_food });
 
-      const orderFood = await this.createOrderFoodUseCase.execute({
-        quantity,
-        id_order,
-        id_food,
-      });
+        const orderFood = await this.createOrderFoodUseCase.execute({
+          quantity,
+          id_order,
+          id_food,
+        });
 
-      if (orderFood.isFailure()) {
+        if (orderFood.isFailure()) {
+          return {
+            type: orderFood.value.type,
+            statusCode: orderFood.value.statusCode,
+            message: orderFood.value.message,
+          };
+        }
+
         return {
-          type: orderFood.value.type,
-          statusCode: orderFood.value.statusCode,
-          message: orderFood.value.message,
+          type: "Created",
+          statusCode: 201,
+          orderFood: {
+            ...orderFood.value,
+          },
         };
       }
-
-      return {
-        type: "Created",
-        statusCode: 201,
-        orderFood: {
-          ...orderFood.value,
-        },
-      };
-    });
+    );
   }
 }
 

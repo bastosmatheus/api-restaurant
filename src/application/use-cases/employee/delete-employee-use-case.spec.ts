@@ -1,5 +1,6 @@
 import { NotFoundError } from "../errors/not-found-error";
 import { BcryptAdapter } from "../../../infraestructure/cryptography/cryptography";
+import { UnauthorizedError } from "../errors/unauthorized-error";
 import { DeleteEmployeeUseCase } from "./delete-employee-use-case";
 import { CreateEmployeeUseCase } from "./create-employee-use-case";
 import { InMemoryEmployeeRepository } from "../../../infraestructure/repositories/in-memory/in-memory-employee-repository";
@@ -30,9 +31,27 @@ describe("delete an employee by id", () => {
 
     const id = employeeCreated.value.id;
 
-    const employee = await deleteEmployeeUseCase.execute({ id });
+    const employee = await deleteEmployeeUseCase.execute({ id, id_employee: id });
 
     expect(employee.isSuccess()).toBe(true);
+  });
+
+  it("should not be possible to delete an employee if the id_employee is different the id", async () => {
+    const employeeCreated = await createEmployeeUseCase.execute({
+      name: "Matheus",
+      email: "matheus@gmail.com",
+      password: "102030",
+      employee_role: "Cozinheiro",
+    });
+
+    if (employeeCreated.isFailure()) return;
+
+    const id = employeeCreated.value.id;
+
+    const employee = await deleteEmployeeUseCase.execute({ id, id_employee: "daoijduij198dj891" });
+
+    expect(employee.isFailure()).toBe(true);
+    expect(employee.value).toBeInstanceOf(UnauthorizedError);
   });
 
   it("should not be possible to delete an employee if the employee is not found", async () => {

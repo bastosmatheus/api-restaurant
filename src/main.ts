@@ -19,14 +19,14 @@ const cryptography = new BcryptAdapter();
 const token = new JwtAdapter();
 
 // routes
-new FoodRoutes(connection, httpServer).routes();
+// new FoodRoutes(connection, httpServer).routes();
 new EmployeeRoutes(connection, httpServer, cryptography, token).routes();
 new DeliverymanRoutes(connection, httpServer, cryptography, token).routes();
 new UserRoutes(connection, httpServer, cryptography, token).routes();
-new CardRoutes(connection, httpServer).routes();
-new PixRoutes(connection, httpServer).routes();
-new DeliveryRoutes(connection, httpServer).routes();
-new OrderRoutes(connection, httpServer).routes();
-new OrderFoodRoutes(connection, httpServer).routes();
+// new CardRoutes(connection, httpServer).routes();
+// new PixRoutes(connection, httpServer).routes();
+// new DeliveryRoutes(connection, httpServer).routes();
+// new OrderRoutes(connection, httpServer).routes();
+// new OrderFoodRoutes(connection, httpServer).routes();
 
 httpServer.listen(3000);

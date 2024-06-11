@@ -5,3 +5,4 @@ export * from "./create-user-use-case";
 export * from "./update-user-use-case";
 export * from "./update-password-user-use-case";
 export * from "./delete-user-use-case";
+export * from "./login-user-use-case";

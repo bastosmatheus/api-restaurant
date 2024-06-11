@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { Order, StatusOrder } from "../../core/entities/order";
 import { HttpServer } from "../../infraestructure/http/http-server";
 import { AuthMiddleware } from "../middlewares/auth-middleware";
+import { RoleMiddleware } from "../middlewares/role-middleware";
+import { Order, StatusOrder } from "../../core/entities/order";
 import {
   CreateOrderUseCase,
   FindAllOrdersUseCase,
@@ -261,7 +262,7 @@ class OrderController {
 
     this.httpServer.on(
       "patch",
-      [AuthMiddleware.verifyToken],
+      [RoleMiddleware.verifyRole],
       "/orders/:{id}",
       async (params: { id: string }, body: Order) => {
         const updateStatusOrderSchema = z.object({

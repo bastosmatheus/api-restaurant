@@ -1,3 +1,5 @@
+<h1 align="center" style="font-weight: bold">api-restaurant 🍔</h1>
+
 ## Tecnologias 🖥️
 
 Este projeto está utilizando as seguintes tecnologias:

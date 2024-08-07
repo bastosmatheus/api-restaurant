@@ -1,5 +1,11 @@
 <h1 align="center" style="font-weight: bold">api-restaurant 🍔</h1>
 
+## Descrição 📜
+
+Esse projeto consiste em uma api para um restaurante, sendo possivel cadastrar usuários, funcionários e entregadores. Na aplicação da para fazer pedidos, tem sistema de entrega, formas de pagamento, entre outros recursos. O processo se inicia com a criação do usuário, após isso é possível ver o cardapio, escolher os alimentos, efetuar/pagar o pedido e acompanhar a entrega (aceita por um entregador cadastrado). A criação e edição dos pratos é feita por um funcionário, mais especificamente, um gerente (validado através do token jwt).
+
+Para garantir a qualidade, o sistema foi feito com arquitetura limpa, juntamente com testes unitários, utilizando vitest.
+
 ## Tecnologias 🖥️
 
 Este projeto está utilizando as seguintes tecnologias:
@@ -10,12 +16,6 @@ Este projeto está utilizando as seguintes tecnologias:
 - [Vitest](https://vitest.dev/)
 - [JWT](https://jwt.io/)
 - [Zod](https://zod.dev/)
-
-## Descrição 📜
-
-Esse projeto consiste em uma api para um restaurante, sendo possivel cadastrar usuários, funcionários e entregadores. Na aplicação da para fazer pedidos, tem sistema de entrega, formas de pagamento, entre outros recursos. O processo se inicia com a criação do usuário, após isso é possível ver o cardapio, escolher os alimentos, efetuar/pagar o pedido e acompanhar a entrega (aceita por um entregador cadastrado). A criação e edição dos pratos é feita por um funcionário, mais especificamente, um gerente (validado através do token jwt).
-
-Para garantir a qualidade, o sistema foi feito com arquitetura limpa, juntamente com testes unitários, utilizando vitest.
 
 ## Endpoints 📌
 

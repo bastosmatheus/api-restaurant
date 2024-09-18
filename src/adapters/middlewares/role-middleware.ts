@@ -1,6 +1,7 @@
 import { JwtAdapter } from "../../infraestructure/token/token";
 import { NextFunction, Request, Response } from "express";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import { InfosToken } from "../controllers/user-controller";
 
 class RoleMiddleware {
   static async verifyRole(req: Request, res: Response, next: NextFunction) {
@@ -18,7 +19,7 @@ class RoleMiddleware {
 
     const token = bearerToken.split(" ")[1];
 
-    const verify = await jwt.verify(token);
+    const verify = (await jwt.verify(token)) as InfosToken;
 
     if (verify instanceof TokenExpiredError) {
       return res.status(401).json({

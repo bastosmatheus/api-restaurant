@@ -19,7 +19,7 @@ class AuthMiddleware {
 
     const token = bearerToken.split(" ")[1];
 
-    const verify = await jwt.verify(token);
+    const verify = (await jwt.verify(token)) as InfosToken;
 
     if (verify instanceof TokenExpiredError) {
       return res.status(401).json({
@@ -37,7 +37,7 @@ class AuthMiddleware {
       });
     }
 
-    req.infosToken = verify as InfosToken;
+    req.infosToken = verify;
 
     next();
   }

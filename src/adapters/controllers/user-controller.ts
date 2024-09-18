@@ -17,6 +17,7 @@ export type InfosToken = {
   name: string;
   email: string;
   id_user: string;
+  employee_role?: string;
 };
 
 class UserController {

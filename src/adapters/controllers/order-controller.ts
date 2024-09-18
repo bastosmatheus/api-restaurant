@@ -143,6 +143,8 @@ class OrderController {
                     message: "O status do pedido deve ser uma string",
                   };
                 }
+
+                return { message: "Erro de validação." };
               },
             }
           ),
@@ -289,6 +291,8 @@ class OrderController {
                   message: "O status do pedido deve ser uma string",
                 };
               }
+
+              return { message: "Erro de validação." };
             },
           }),
         });

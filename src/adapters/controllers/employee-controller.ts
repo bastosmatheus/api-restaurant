@@ -69,6 +69,8 @@ class EmployeeController {
                   message: "A função do funcionário deve ser uma string",
                 };
               }
+
+              return { message: "Erro de validação." };
             },
           }),
         });
@@ -201,6 +203,8 @@ class EmployeeController {
                 message: "A função do funcionário deve ser uma string",
               };
             }
+
+            return { message: "Erro de validação." };
           },
         }),
       });
@@ -309,6 +313,8 @@ class EmployeeController {
                   message: "A função do funcionário deve ser uma string",
                 };
               }
+
+              return { message: "Erro de validação." };
             },
           }),
         });

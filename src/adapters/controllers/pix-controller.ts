@@ -84,6 +84,8 @@ class PixController {
                   message: "O status deve ser uma string",
                 };
               }
+
+              return { message: "Erro de validação." };
             },
           }),
         });

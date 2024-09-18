@@ -13,7 +13,7 @@ import {
   LoginUserUseCase,
 } from "../../application/use-cases/user";
 
-type InfosToken = {
+export type InfosToken = {
   name: string;
   email: string;
   id_user: string;

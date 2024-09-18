@@ -1,6 +1,7 @@
 import { JwtAdapter } from "../../infraestructure/token/token";
 import { NextFunction, Request, Response } from "express";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import { InfosToken } from "../controllers/user-controller";
 
 class AuthMiddleware {
   static async verifyToken(req: Request, res: Response, next: NextFunction) {
@@ -36,7 +37,7 @@ class AuthMiddleware {
       });
     }
 
-    req.infosToken = verify;
+    req.infosToken = verify as InfosToken;
 
     next();
   }

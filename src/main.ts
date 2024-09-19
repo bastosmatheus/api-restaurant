@@ -34,9 +34,22 @@
 import express from "express";
 
 const app = express();
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("agora está funcionando");
+const port = 4000;
+
+app.get("/", async (request, response) => {
+  return response.send("está funcionando");
 });
 
-app.listen(3000);
+app.get("/books", async (request, response) => {
+  return response.json({
+    name: "Matheus",
+  });
+});
+
+app.post("/books", async (request, response) => {
+  return response.json();
+});
+
+app.listen(port, () => console.log("Server is running on port ", port));

@@ -18,10 +18,6 @@ const connection = new PgpAdapter();
 const cryptography = new BcryptAdapter();
 const token = new JwtAdapter();
 
-httpServer.app.use("/carangueijo", async (req, res) => {
-  res.send("O SERVER ESTÁ FUNCIONANDO");
-});
-
 // routes
 new FoodRoutes(connection, httpServer).routes();
 new EmployeeRoutes(connection, httpServer, cryptography, token).routes();

@@ -23,6 +23,10 @@ class FoodController {
     private readonly updateFoodUseCase: UpdateFoodUseCase,
     private readonly deleteFoodUseCase: DeleteFoodUseCase
   ) {
+    this.routes();
+  }
+
+  private routes() {
     this.httpServer.on("get", [], "/foods", async () => {
       const foods = await this.findAllFoodsUseCase.execute();
 

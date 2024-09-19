@@ -2,13 +2,13 @@
   "name": "api-restaurant",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "type": "module",
   "scripts": {
     "dev": "tsx watch ./src/main.ts",
     "test": "vitest",
     "build": "tsup",
-    "start": "node dist/main.js"
+    "start": "node ./src/dist/main.js"
   },
   "keywords": [],
   "author": "",

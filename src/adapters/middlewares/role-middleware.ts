@@ -1,7 +1,9 @@
+import jwt from "jsonwebtoken";
 import { JwtAdapter } from "../../infraestructure/token/token";
-import { NextFunction, Request, Response } from "express";
-import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { InfosToken } from "../controllers/user-controller";
+import { NextFunction, Request, Response } from "express";
+
+const { JsonWebTokenError, TokenExpiredError } = jwt;
 
 class RoleMiddleware {
   static async verifyRole(req: Request, res: Response, next: NextFunction) {

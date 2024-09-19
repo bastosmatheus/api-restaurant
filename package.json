@@ -8,7 +8,7 @@
     "dev": "tsx watch ./src/main.ts",
     "test": "vitest",
     "build": "tsup",
-    "start": "node ./src/dist/main.js"
+    "start": "node dist/main.js"
   },
   "keywords": [],
   "author": "",
